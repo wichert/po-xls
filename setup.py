@@ -41,5 +41,6 @@ setup(name="lingua",
       [babel.extractors]
       lingua_python = lingua.extractors.python:extract_python
       lingua_xml = lingua.extractors.xml:extract_xml
+      lingua_zcml = lingua.extractors.zcml:extract_zcml
       """
       )
