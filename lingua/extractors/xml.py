@@ -4,6 +4,8 @@ import re
 from xml.parsers import expat
 
 class TranslateContext(object):
+    WHITESPACE = re.compile(u"\s{2,}")
+
     def __init__(self, msgid, lineno):
         self.msgid = msgid
         self.text = []
@@ -23,6 +25,7 @@ class TranslateContext(object):
 
     def message(self):
         text = u"".join(self.text)
+        text = self.WHITESPACE.sub(u" ", text)
         if self.msgid:
             return (self.lineno, None, self.msgid, [u"Default: %s" % text])
         else:

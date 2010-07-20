@@ -107,3 +107,15 @@ class ExtractTests(unittest.TestCase):
                 [(2, None, "msgid_dummy", [u"Default: Dummy ${text} demo"]),
                  (2, None, "msgid_text", [u"Default: text"])])
 
+    def test_translate_stripExtraWhitespace(self):
+        snippet="""\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
+                  <dummy i18n:translate="">Dummy
+
+
+                  text</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(2, None, u"Dummy text", [])])
+
