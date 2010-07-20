@@ -1,10 +1,10 @@
 import unittest
-from StringIO import StringIO
 
 
 class ExtractTests(unittest.TestCase):
     def extract(self, snippet):
         from lingua.extractors.xml import extract_xml
+        from StringIO import StringIO
         snippet=StringIO(snippet)
         return list(extract_xml(snippet, None, None, None))
 

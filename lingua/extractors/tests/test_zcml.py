@@ -1,10 +1,10 @@
 import unittest
-from StringIO import StringIO
 
 
 class ExtractTests(unittest.TestCase):
     def extract(self, snippet):
         from lingua.extractors.zcml import extract_zcml
+        from StringIO import StringIO
         snippet=StringIO(snippet)
         return list(extract_zcml(snippet, None, None, None))
 
