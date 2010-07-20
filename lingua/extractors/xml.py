@@ -33,20 +33,28 @@ class TranslateContext(object):
 
 
 class XmlExtractor(object):
+    ENTITY = re.compile(r"&([A-Za-z]+|#[0-9]+);")
+
     def __call__(self, fileobj, keywords, comment_tags, options):
         self.keywords = keywords
         self.comment_tags = comment_tags
         self.options = options
         self.messages = []
         self.parser = expat.ParserCreate(namespace_separator=' ')
+        self.parser.buffer_text = True
+        self.parser.returns_unicode = True
+        self.parser.UseForeignDTD()
         self.parser.StartElementHandler = self.StartElementHandler
         self.parser.CharacterDataHandler = self.CharacterDataHandler
         self.parser.EndElementHandler = self.EndElementHandler
+        self.parser.DefaultHandler = self.DefaultHandler
         self.domainstack = collections.deque()
         self.translatestack = collections.deque([None])
+
+        self.input = fileobj.read()
         try:
-            self.parser.ParseFile(fileobj)
-        except expat.ExpatError:
+            self.parser.Parse(self.input, True)
+        except 1: #expat.ExpatError:
             pass
         return self.messages
 
@@ -92,9 +100,34 @@ class XmlExtractor(object):
                     self.addMessage(msgid, [u"Default: %s" % attributes[attr]])
 
 
-    def CharacterDataHandler(self, data):
-        if self.translatestack[-1]:
+    def DefaultHandler(self, data):
+        if data.startswith(u"&") and self.translatestack[-1]:
             self.translatestack[-1].addText(data)
+
+
+    def CharacterDataHandler(self, data):
+        if not self.translatestack[-1]:
+            return
+
+        data_length = len(data)
+        context = self.input[self.parser.CurrentByteIndex:]
+        text = []
+
+        while data:
+            m = self.ENTITY.search(context)
+            if m is None or m.start()>=data_length:
+                self.translatestack[-1].addText(data)
+                break
+
+            n = self.ENTITY.match(data)
+            if n is not None:
+                length = n.end()
+            else:
+                length = 1
+
+            self.translatestack[-1].addText(context[0: m.end()])
+            data = data[m.start()+length:]
+
 
 
     def EndElementHandler(self, name):

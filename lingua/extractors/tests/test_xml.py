@@ -36,7 +36,7 @@ class ExtractTests(unittest.TestCase):
 
     def test_attributes_NoDomain(self):
         snippet="""\
-                <html>
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n">
                   <dummy i18n:attributes="title" title="test title"/>
                 </html>
                 """
@@ -121,12 +121,12 @@ class ExtractTests(unittest.TestCase):
         self.assertEqual(self.extract(snippet),
                 [(2, None, u"Dummy text", [])])
 
-    def test_translate_HtmmEntity(self):
-        snippet="""\
+    def test_translate_HtmlEntity(self):
+        snippet="""
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
-                  <button i18n:translate="">lock &amp; load</button>
+                  <button i18n:translate="">lock &amp; load&nbsp;</button>
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"lock & load", [])])
+                [(2, None, u"lock &amp; load&nbsp;", [])])
 
