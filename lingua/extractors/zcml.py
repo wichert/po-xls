@@ -10,7 +10,7 @@ class ZcmlExtractor(object):
         self.comment_tags = comment_tags
         self.options = options
         self.messages = []
-        self.parser = expat.ParserCreate(namespace_separator=' ')
+        self.parser = expat.ParserCreate()
         self.parser.StartElementHandler = self.StartElementHandler
         self.parser.EndElementHandler = self.EndElementHandler
         self.domainstack = collections.deque()
@@ -19,6 +19,13 @@ class ZcmlExtractor(object):
         except expat.ExpatError:
             pass
         return self.messages
+
+
+
+    def addMessage(self, message, comments=[]):
+        self.messages.append((self.parser.CurrentLineNumber, None, message, comments))
+
+
 
     def StartElementHandler(self, name, attributes):
         if "i18n_domain" in attributes:
@@ -31,7 +38,9 @@ class ZcmlExtractor(object):
 
         for (key, value) in attributes.items():
             if key in self.ATTRIBUTES:
-                self.messages.append((self.parser.CurrentLineNumber, None, value, []))
+                self.addMessage(value)
+
+
 
     def EndElementHandler(self, name):
         if self.domainstack:

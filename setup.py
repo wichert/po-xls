@@ -5,7 +5,6 @@ version = "1.0"
 
 install_requires=[
         "Babel",
-        "Chameleon",
         "xlrd",
         "xlwt",
         ]

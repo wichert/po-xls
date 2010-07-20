@@ -1,48 +1,111 @@
+from __future__ import absolute_import
 import collections
 import re
-from chameleon.zpt.language import Parser
+from xml.parsers import expat
+
+class TranslateContext(object):
+    def __init__(self, msgid, lineno):
+        self.msgid = msgid
+        self.text = []
+        self.lineno = lineno
+
+    def addText(self, text):
+        self.text.append(text)
+
+
+    def addNode(self, name, attributes):
+        name = attributes.get("http://xml.zope.org/namespaces/i18n name")
+        if name:
+            self.text.append(u"${%s}" % name)
+        else:
+            self.text.append(u"<dynamic element>")
+
+
+    def message(self):
+        text = u"".join(self.text)
+        if self.msgid:
+            return (self.lineno, None, self.msgid, [u"Default: %s" % text])
+        else:
+            return (self.lineno, None, text, [])
+
+
+class XmlExtractor(object):
+    def __call__(self, fileobj, keywords, comment_tags, options):
+        self.keywords = keywords
+        self.comment_tags = comment_tags
+        self.options = options
+        self.messages = []
+        self.parser = expat.ParserCreate(namespace_separator=' ')
+        self.parser.StartElementHandler = self.StartElementHandler
+        self.parser.CharacterDataHandler = self.CharacterDataHandler
+        self.parser.EndElementHandler = self.EndElementHandler
+        self.domainstack = collections.deque()
+        self.translatestack = collections.deque([None])
+        try:
+            self.parser.ParseFile(fileobj)
+        except expat.ExpatError:
+            pass
+        return self.messages
+
+
+    def addMessage(self, message, comments=[]):
+        self.messages.append((self.parser.CurrentLineNumber, None, message, comments))
+
+
+    def StartElementHandler(self, name, attributes):
+        new_domain = attributes.get("http://xml.zope.org/namespaces/i18n domain")
+        if new_domain:
+            self.domainstack.append(new_domain)
+        elif self.domainstack:
+            self.domainstack.append(self.domainstack[-1])
+
+        if self.translatestack[-1]:
+            self.translatestack[-1].addNode(name, attributes)
+
+        i18n_translate = attributes.get("http://xml.zope.org/namespaces/i18n translate")
+        if i18n_translate is not None:
+            self.translatestack.append(TranslateContext(i18n_translate, self.parser.CurrentLineNumber))
+        else:
+            self.translatestack.append(None)
+
+        if not self.domainstack:
+            return
+
+        i18n_attributes = attributes.get("http://xml.zope.org/namespaces/i18n attributes")
+        if i18n_attributes:
+            parts = [p.strip() for p in i18n_attributes.split(";")]
+            for msgid in parts:
+                if " " not in msgid:
+                    if msgid not in attributes:
+                        continue
+                    self.addMessage(attributes[msgid])
+                else:
+                    try:
+                        (msgid, attr) = msgid.split()
+                    except ValueError:
+                        continue
+                    if attr not in attributes:
+                        continue
+                    self.addMessage(msgid, [u"Default: %s" % attributes[attr]])
+
+
+
+    def CharacterDataHandler(self, data):
+        if self.translatestack[-1]:
+            self.translatestack[-1].addText(data)
+
+
+    def EndElementHandler(self, name):
+        if self.domainstack:
+            self.domainstack.pop()
+
+        translate = self.translatestack.pop()
+        if translate:
+            self.messages.append(translate.message())
+
 
 def extract_xml(fileobj, keywords, comment_tags, options):
-    parser = Parser()
-    doc = parser.parse(fileobj.read())
-    root = doc.getroot()
-
-    todo = collections.deque([(root, None)])
-    while todo:
-        (node, domain) = todo.pop()
-        domain = getattr(node, "i18n_domain", domain) or domain
-
-        attrs = getattr(node, "i18n_attributes", None)
-        if attrs:
-            for (attr, label) in attrs:
-                value = node.attrib.get(attr, None)
-                if not value:
-                    continue
-
-                if label:
-                    yield (node.position[0], None, label,  [u"Default: %s" % value])
-                else:
-                    yield (node.position[0], None, value, [])
-
-        label = getattr(node, "i18n_translate", None)
-        if label is not None:
-            msg = []
-            if node.text:
-                msg.append(node.text.lstrip())
-            for child in node.getchildren():
-                name = getattr(child, "i18n_name")
-                if name:
-                    msg.append(u"${%s}" % name)
-                if child.tail:
-                    msg.append(child.tail)
-            msg = u"".join(msg)
-            msg = re.sub(u"\s{2,}", u" ", msg)
-            if label:
-                yield (node.position[0], None, label, [u"Default: %s" % msg])
-            else:
-                yield (node.position[0], None, msg, [])
-
-        for child in node.getchildren():
-            todo.append((child, domain))
+    extractor = XmlExtractor()
+    return extractor(fileobj, keywords, comment_tags, options)
 
 
