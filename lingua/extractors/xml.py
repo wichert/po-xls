@@ -89,7 +89,6 @@ class XmlExtractor(object):
                     self.addMessage(msgid, [u"Default: %s" % attributes[attr]])
 
 
-
     def CharacterDataHandler(self, data):
         if self.translatestack[-1]:
             self.translatestack[-1].addText(data)
