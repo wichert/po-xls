@@ -51,9 +51,8 @@ class XmlExtractor(object):
         self.domainstack = collections.deque()
         self.translatestack = collections.deque([None])
 
-        self.input = fileobj.read()
         try:
-            self.parser.Parse(self.input, True)
+            self.parser.ParseFile(fileobj)
         except 1: #expat.ExpatError:
             pass
         return self.messages
@@ -110,7 +109,7 @@ class XmlExtractor(object):
             return
 
         data_length = len(data)
-        context = self.input[self.parser.CurrentByteIndex:]
+        context = self.parser.GetInputContext()
         text = []
 
         while data:
