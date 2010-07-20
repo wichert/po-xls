@@ -5,6 +5,7 @@ version = "1.0"
 
 install_requires=[
         "Babel",
+        "Chameleon",
         "xlrd",
         "xlwt",
         ]
@@ -36,5 +37,9 @@ setup(name="lingua",
       [console_scripts]
       po-to-xls = lingua.xlsconvert:ConvertPoXls
       xls-to-po = lingua.xlsconvert:ConvertXlsPo
+
+      [babel.extractors]
+      lingua_python = lingua.extractors.python:extract_python
+      lingua_xml = lingua.extractors.xml:extract_xml
       """
       )
