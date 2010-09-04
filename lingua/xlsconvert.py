@@ -17,6 +17,7 @@ def replaceCatalog(filename, catalog):
     os.rename(tmpfile, filename)
 
 
+
 def toBase26(value):
     if not value:
         return "A"
@@ -53,11 +54,13 @@ def checkRow(sheet, row):
     return True
 
 
+
 def getVariables(text):
     variables=set(VARIABLE_RE.findall(text))
     if "newline" in variables:
         variables.remove("newline")
     return variables
+
 
 
 def addRow(catalog, locale, sheet, row, column):
@@ -94,6 +97,7 @@ def addRow(catalog, locale, sheet, row, column):
         msg.flags.remove("fuzzy")
 
 
+
 def ConvertXlsPo():
     import lingua.monkeys
     lingua.monkeys.applyPatches()
@@ -122,8 +126,8 @@ def ConvertXlsPo():
         pofile=os.path.join(options.root_directory, locale, "LC_MESSAGES", "%s.po" % options.domain)
         catalogs[locale]=(pofile, read_po(open(pofile)))
 
+    missing=set(options.locale)
     for sheet in book.sheets():
-        missing=set(options.locale)
         for col in range(2, sheet.ncols):
             locale=CellString(sheet, 0, col)
             if locale not in catalogs:
