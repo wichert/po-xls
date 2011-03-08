@@ -63,7 +63,7 @@ def getVariables(text):
 
 
 
-def addRow(catalog, locale, sheet, row, column):
+def addRow(catalog, sheet, row, column):
     msgid=CellString(sheet, row, 0)
     default=CellString(sheet, row, 1)
     if not default:
@@ -75,18 +75,18 @@ def addRow(catalog, locale, sheet, row, column):
 
     fuzzy=False
     if default.count("|")!=translation.count("|"):
-        print >> sys.stderr, ("Bad %s translation in cell %s:%s: different number of texts." %
-                (locale, sheet.name, CellId(row, column)))
+        print >> sys.stderr, ("Bad translation in cell %s:%s: different number of texts." %
+                (sheet.name, CellId(row, column)))
         fuzzy=True
 
     if getVariables(default)!=getVariables(translation):
-        print >> sys.stderr, ("Bad %s translation in cell %s:%s: different variables used." %
-                (locale, sheet.name, CellId(row, column)))
+        print >> sys.stderr, ("Bad translation in cell %s:%s: different variables used." %
+                (sheet.name, CellId(row, column)))
         fuzzy=True
 
     if msgid not in catalog:
-        print >>sys.stderr, ("Can not find %s translation for cell %s:%s in PO file." %
-                (locale, sheet.name, CellId(row, column)))
+        print >>sys.stderr, ("Can not find translation for cell %s:%s in PO file." %
+                (sheet.name, CellId(row, column)))
         return False
 
     msg=catalog[msgid]
@@ -105,49 +105,32 @@ def ConvertXlsPo():
     parser=argparse.ArgumentParser(
             description="Merge translation from XLS file to a .PO file")
 
-    parser.add_argument("-l", "--locale", action="append",
-            dest="locale",
-            help="Locale to process (must be repeated for every translation column)")
-    parser.add_argument("input_file", metavar="<xls file>",
-            help="Input XLS file")
-    parser.add_argument("root_directory", metavar="<directory>",
-            help="Locales directory")
-    parser.add_argument("domain", metavar="<domain>",
-            help="Domain to process")
+    parser.add_argument("locale", metavar="<locale>", help="Locale to process")
+    parser.add_argument("input_file", metavar="<xls file>", help="Input XLS file")
+    parser.add_argument("output_file", metavar="<po file>", help="PO file to update")
     options=parser.parse_args()
 
-    if not options.locale:
-        print >>sys.stderr, "No locales to process given, aborting."
-        sys.exit(1)
-
     book=xlrd.open_workbook(filename=options.input_file, logfile=sys.stderr)
-    catalogs={}
-    for locale in options.locale:
-        pofile=os.path.join(options.root_directory, locale, "LC_MESSAGES", "%s.po" % options.domain)
-        catalogs[locale]=(pofile, read_po(open(pofile)))
+    catalog=read_po(open(options.output_file))
 
-    missing=set(options.locale)
+    found_locale=False
     for sheet in book.sheets():
         for col in range(2, sheet.ncols):
             locale=CellString(sheet, 0, col)
-            if locale not in catalogs:
+            if locale!=options.locale:
                 continue
-            (_, catalog)=catalogs[locale]
-            missing.remove(locale)
+            found_locale=True
 
             for row in range(1, sheet.nrows):
                 if not checkRow(sheet, row):
                     continue
-                addRow(catalog, locale, sheet, row, col)
+                addRow(catalog, sheet, row, col)
 
-        if missing:
-            print >>sys.stderr, "Sheet %s has no translations for: %s" %\
-                    (sheet.name, ", ".join(sorted(missing)))
+    if not found_locale:
+        print >>sys.stderr, "No translations found for locale %s" % options.locale
+        sys.exit(1)
 
-    for (locale, info) in catalogs.items():
-        if locale in missing:
-            continue
-        replaceCatalog(info[0], info[1])
+    replaceCatalog(options.output_file, catalog)
 
 
 
@@ -157,29 +140,17 @@ def ConvertPoXls():
 
     parser=argparse.ArgumentParser(
             description="Convert Po files for a domain to an Excel file.")
-    parser.add_argument("-l", "--locale", action="append",
-            dest="locale",
-            help="Restrict output to this locale (can be repeated)")
-    parser.add_argument("root_directory", metavar="<directory>",
-            help="Locales directory")
-    parser.add_argument("domain", metavar="<domain>",
-            help="Domain to process")
+    parser.add_argument("-p",
+            dest="input", action="append", nargs=2, required=True,
+            metavar=("<locale>", "<po file>"),
+            help="Locale and filename of po-file to process")
     parser.add_argument("output_file", metavar="<xls file>",
             help="Output XLS file")
     options=parser.parse_args()
 
     catalogs=[]
-
-    for lang in os.listdir(options.root_directory):
-        if lang.startswith("."):
-            continue
-        if options.locale and lang not in options.locale:
-            continue
-        path=os.path.join(options.root_directory, lang, "LC_MESSAGES", "%s.po" % options.domain)
-        if not os.path.isfile(path):
-            continue
-        catalogs.append((lang, read_po(open(path))))
-
+    for (locale, path) in options.input:
+        catalogs.append((locale, read_po(open(path))))
 
     messages=[]
     seen=set()
@@ -195,6 +166,10 @@ def ConvertPoXls():
                 seen.add(msg.id)
 
     book=xlwt.Workbook(encoding="utf-8")
+    italic_style=xlwt.XFStyle()
+    italic_style.num_format_str="Italic"
+    italic_style.font.italic=True
+    italic_style.font.bold=True
     sheet=book.add_sheet(u"Translations")
     row=1
     sheet.write(0, 0, u"Message id")
@@ -208,7 +183,11 @@ def ConvertPoXls():
         for (i, cat) in enumerate(catalogs):
             cat=cat[1]
             if msgid in cat:
-                sheet.write(row, i+2, cat[msgid].string)
+                msg=cat[msgid]
+                if msg.fuzzy:
+                    sheet.write(row, i+2, msg.string, italic_style)
+                else:
+                    sheet.write(row, i+2, msg.string)
         row+=1
 
     book.save(options.output_file)
