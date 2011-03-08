@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-version = "1.0"
+version = "0.2"
 
 install_requires=[
         "Babel",
