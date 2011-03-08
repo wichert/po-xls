@@ -110,7 +110,6 @@ class XmlExtractor(object):
 
         data_length = len(data)
         context = self.parser.GetInputContext()
-        text = []
 
         while data:
             m = self.ENTITY.search(context)
