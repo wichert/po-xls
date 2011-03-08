@@ -1,0 +1,5 @@
+/lingua.egg-info
+/dist
+/build
+*.pyo
+*.pyc
