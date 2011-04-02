@@ -4,7 +4,7 @@ import sys
 version = "0.3dev"
 
 install_requires=[
-        "Babel",
+        "polib",
         "xlrd",
         "xlwt",
         ]

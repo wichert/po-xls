@@ -4,16 +4,13 @@ import re
 import sys
 import xlrd
 import xlwt
-from babel.messages.pofile import read_po
-from babel.messages.pofile import write_po
+import polib
 
 VARIABLE_RE = re.compile(r"\${(.*?)}")
 
 def replaceCatalog(filename, catalog):
     tmpfile=filename+"~"
-    output=open(tmpfile, "w")
-    write_po(output, catalog)
-    output.close()
+    catalog.save(tmpfile)
     os.rename(tmpfile, filename)
 
 
@@ -74,34 +71,26 @@ def addRow(catalog, sheet, row, column):
         return False
 
     fuzzy=False
-    if default.count("|")!=translation.count("|"):
-        print >> sys.stderr, ("Bad translation in cell %s:%s: different number of texts." %
-                (sheet.name, CellId(row, column)))
-        fuzzy=True
-
     if getVariables(default)!=getVariables(translation):
         print >> sys.stderr, ("Bad translation in cell %s:%s: different variables used." %
                 (sheet.name, CellId(row, column)))
         fuzzy=True
 
-    if msgid not in catalog:
+    msg=catalog.find(msgid)
+    if msg is None:
         print >>sys.stderr, ("Can not find translation for cell %s:%s in PO file." %
                 (sheet.name, CellId(row, column)))
         return False
 
-    msg=catalog[msgid]
-    msg.string=translation
-    if fuzzy and not msg.fuzzy:
-        msg.flags.add("fuzzy")
-    elif not fuzzy and msg.fuzzy:
+    msg.msgstr=translation
+    if fuzzy and "fuzzy" not in msg.flags: 
+        msg.flags.append("fuzzy")
+    elif not fuzzy and "fuzzy" in msg.flags:
         msg.flags.remove("fuzzy")
 
 
 
 def ConvertXlsPo():
-    import lingua.monkeys
-    lingua.monkeys.applyPatches()
-
     parser=argparse.ArgumentParser(
             description="Merge translation from XLS file to a .PO file")
 
@@ -111,7 +100,7 @@ def ConvertXlsPo():
     options=parser.parse_args()
 
     book=xlrd.open_workbook(filename=options.input_file, logfile=sys.stderr)
-    catalog=read_po(open(options.output_file))
+    catalog=polib.pofile(options.output_file)
 
     found_locale=False
     for sheet in book.sheets():
@@ -135,9 +124,6 @@ def ConvertXlsPo():
 
 
 def ConvertPoXls():
-    import lingua.monkeys
-    lingua.monkeys.applyPatches()
-
     parser=argparse.ArgumentParser(
             description="Convert Po files for a domain to an Excel file.")
     parser.add_argument("-p",
@@ -150,20 +136,20 @@ def ConvertPoXls():
 
     catalogs=[]
     for (locale, path) in options.input:
-        catalogs.append((locale, read_po(open(path))))
+        catalogs.append((locale, polib.pofile(path)))
 
     messages=[]
     seen=set()
     for catalog in catalogs:
         for msg in catalog[1]:
-            if not msg.id:
+            if not msg.msgid:
                 continue
-            if msg.id not in seen:
-                default=u" ".join(msg.auto_comments)
+            if msg.msgid not in seen:
+                default=msg.comment
                 if default.startswith("Default: "):
                     default=default[9:]
-                messages.append((msg.id, default))
-                seen.add(msg.id)
+                messages.append((msg.msgid, default))
+                seen.add(msg.msgid)
 
     book=xlwt.Workbook(encoding="utf-8")
     italic_style=xlwt.XFStyle()
@@ -182,12 +168,12 @@ def ConvertPoXls():
         sheet.write(row, 1, default)
         for (i, cat) in enumerate(catalogs):
             cat=cat[1]
-            if msgid in cat:
-                msg=cat[msgid]
-                if msg.fuzzy:
-                    sheet.write(row, i+2, msg.string, italic_style)
+            msg=cat.find(msgid)
+            if msgid is not None:
+                if "fuzzy" in msg.flags:
+                    sheet.write(row, i+2, msg.msgstr, italic_style)
                 else:
-                    sheet.write(row, i+2, msg.string)
+                    sheet.write(row, i+2, msg.msgstr)
         row+=1
 
     book.save(options.output_file)
