@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-version = "0.3dev"
+version = "0.3"
 
 install_requires=[
         "polib",
