@@ -41,9 +41,10 @@ class XmlExtractor(object):
         self.options = options
         self.messages = []
         self.parser = expat.ParserCreate(namespace_separator=' ')
-        self.parser.buffer_text = True
         self.parser.returns_unicode = True
         self.parser.UseForeignDTD()
+        self.parser.SetParamEntityParsing(
+            expat.XML_PARAM_ENTITY_PARSING_ALWAYS)
         self.parser.StartElementHandler = self.StartElementHandler
         self.parser.CharacterDataHandler = self.CharacterDataHandler
         self.parser.EndElementHandler = self.EndElementHandler

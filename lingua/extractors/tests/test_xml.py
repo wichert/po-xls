@@ -122,7 +122,7 @@ class ExtractTests(unittest.TestCase):
                 [(2, None, u"Dummy text", [])])
 
     def test_translate_HtmlEntity(self):
-        snippet="""
+        snippet="""\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
                   <button i18n:translate="">lock &amp; load&nbsp;</button>
                 </html>
