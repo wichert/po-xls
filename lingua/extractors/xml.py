@@ -53,7 +53,7 @@ class XmlExtractor(object):
 
         try:
             self.parser.ParseFile(fileobj)
-        except 1: #expat.ExpatError:
+        except expat.ExpatError:
             pass
         return self.messages
 
