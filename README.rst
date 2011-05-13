@@ -8,14 +8,15 @@ in Python software.
 Babel extraction plugins
 ========================
 
-lingua contains two extraction plugins for `Babel <http://babel.edgewall.org/>`:
+lingua contains two extraction plugins for `Babel
+<http://babel.edgewall.org/>`_:
 
 * ``lingua_python``, which supports translation strings as used in `Pyramid
   <http://pylonsproject.org>`_ (via `translationstring
   <http://pypi.python.org/pypi/translationstring>`_) and Zope2/ZTK (via
   `zope.i18nmessageid <http://pypi.python.org/pypi/zope.i18nmessageid>`_).
 * ``lingua_xml``, which supports the i18n syntax as used by `Chameleon
-  <http://pagetemplates.org/>` and Zope PageTempaltes,
+  <http://pagetemplates.org/>`_ and Zope PageTempaltes,
 
 Detailed information on using Babel extraction plugins can be found in the
 `Babel documentation
