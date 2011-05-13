@@ -14,7 +14,8 @@ if sys.version_info<(2,7):
 setup(name="lingua",
       version=version,
       description="Translation toolset",
-      long_description="",
+      long_description=open('README.rst').read() + '\n' + \
+              open('changes.rst').read(),
       classifiers=[
           "Intended Audience :: Developers",
           "License :: DFSG approved",
