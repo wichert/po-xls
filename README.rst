@@ -60,3 +60,28 @@ Translations can be merged back from a spreadsheet into a PO-file using the
 This will take the Dutch (`nl`) translations from `texts.xls` and use those to
 upgrade the `nl.po` file.
 
+
+Sanity checking
+===============
+
+Lingua includes a simple `polint` tool which performs a few basic checks on PO
+files. Currently implemented tests are:
+
+* duplicated message ids (can also be checked with `msgfmt`). These should
+  never happen and are usually a result of a bug in the message extraction
+  logic.
+
+* identical translations used for multiple canonical texts. This can happen
+  for valid reasons, for example when the original text is not spelled
+  consistently.
+
+To check a po file simply run `polint` with the po file as argument::
+
+    polint nl.po
+
+    Translation:
+        ${val} ist keine Zeichenkette
+    Used for 2 canonical texts:
+    1       ${val} is not a string
+    2       "${val}" is not a string
+

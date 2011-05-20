@@ -39,6 +39,7 @@ setup(name="lingua",
       [console_scripts]
       po-to-xls = lingua.xlsconvert:ConvertPoXls
       xls-to-po = lingua.xlsconvert:ConvertXlsPo
+      polint = lingua.polint:main
 
       [babel.extractors]
       lingua_python = lingua.extractors.python:extract_python
