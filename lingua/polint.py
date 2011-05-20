@@ -28,27 +28,24 @@ def verify_po(path, show_path):
         (context, msgid) = key
         if context:
             msgid = u'[%s] %s' % (context, msgid)
-        print textwrap.fill(msgid.encode('utf-8'),
-                initial_indent=' ' * 5,
-                subsequent_indent=' ' * 8)
+        print textwrap.fill(msgid, initial_indent=u' ' * 5,
+                subsequent_indent=u' ' * 8).encode('utf-8')
         print
 
     for (msgstr, keys) in reverse_map.items():
         if len(keys) == 1:
             continue
 
-        print "%sTranslation:" % leader
-        print textwrap.fill(msgstr.encode('utf-8'),
-                initial_indent=' ' * 8,
-                subsequent_indent=' ' * 8)
+        print '%sTranslation:' % leader
+        print textwrap.fill(msgstr, initial_indent=u' ' * 8,
+                subsequent_indent=u' ' * 8).encode('utf-8')
         print "Used for %d canonical texts:" % len(keys)
         for (idx, info) in enumerate(keys):
             (context, msgid) = info
             if context:
-                msgid = u"[%s] %s" % (context, msgid)
-            print textwrap.fill(msgid.encode('utf-8'),
-                    initial_indent='%-8d' % (idx + 1),
-                    subsequent_indent=8 * ' ')
+                msgid = u'[%s] %s' % (context, msgid)
+            print textwrap.fill(msgid, initial_indent='%-8d' % (idx + 1),
+                    subsequent_indent=8 * ' ').encode('utf-8')
         print
 
 
