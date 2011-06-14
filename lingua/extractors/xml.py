@@ -24,7 +24,7 @@ class TranslateContext(object):
 
 
     def message(self):
-        text = u"".join(self.text)
+        text = u"".join(self.text).strip()
         text = self.WHITESPACE.sub(u" ", text)
         if self.msgid:
             return (self.lineno, None, self.msgid, [u"Default: %s" % text])

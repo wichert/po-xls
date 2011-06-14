@@ -4,6 +4,9 @@ Changelog
 1.0b2 - Unreleased
 ------------------
 
+* Correct XML extractor to strip leading and trailing white. This fixes
+  `issue 1 <https://github.com/wichert/lingua/issues/1>`_.
+
 * Add a very minimal polint tool to perform sanity checks in PO files.
 
 * Update trove data: Python 2.4 is not supported due to lack of absolute

@@ -121,6 +121,16 @@ class ExtractTests(unittest.TestCase):
         self.assertEqual(self.extract(snippet),
                 [(2, None, u"Dummy text", [])])
 
+    def test_translate_stripTrailingAndLeadingWhitespace(self):
+        snippet="""\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
+                  <dummy i18n:translate="">
+                      Dummy text
+                  </dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(2, None, u"Dummy text", [])])
     def test_translate_HtmlEntity(self):
         snippet="""\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
