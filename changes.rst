@@ -1,8 +1,11 @@
 Changelog
 =========
 
-1.0b2 - Unreleased
-------------------
+1.0b2 - July 18, 2011
+---------------------
+
+* Update PO-XLS convertors to allow selection of comments to include in
+  the xls files.
 
 * Correct XML extractor to strip leading and trailing white. This fixes
   `issue 1 <https://github.com/wichert/lingua/issues/1>`_.
