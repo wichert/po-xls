@@ -40,14 +40,21 @@ def cell_string(sheet, row, col):
     return cell.value.strip()
 
 
-def checkRow(sheet, row):
+def find_msg(sheet, row, catalog):
     msgid = cell_string(sheet, row, 0)
     if not msgid:
         print >> sys.stderr, ('Missing message id in cell %s:%s' %
                 (sheet.name, cell_id(row, 0)))
-        return False
+        return None
 
-    return True
+    msg = catalog.find(msgid)
+    if msg is None:
+        print >> sys.stderr, \
+                ('Can not find translation for cell %s:%s in PO file.' %
+                (sheet.name, cell_id(row, column)))
+        return None
+
+    return msg
 
 
 def getVariables(text):
@@ -57,29 +64,22 @@ def getVariables(text):
     return variables
 
 
-def addRow(catalog, sheet, row, column):
-    msgid = cell_string(sheet, row, 0)
-    default = cell_string(sheet, row, 1)
-    if not default:
-        default = msgid
+def update_message(msg,  sheet, row, column):
+    if msg.comment.startswith(u'Default:'):
+        canonical = msg.comment[9:]
+    else:
+        canonical = msg.msgid
 
     translation = cell_string(sheet, row, column)
     if not translation:
         return False
 
     fuzzy = False
-    if getVariables(default) != getVariables(translation):
+    if getVariables(canonical) != getVariables(translation):
         print >> sys.stderr, \
                 ('Bad translation in cell %s:%s: different variables used.' %
                 (sheet.name, cell_id(row, column)))
         fuzzy = True
-
-    msg = catalog.find(msgid)
-    if msg is None:
-        print >> sys.stderr, \
-                ('Can not find translation for cell %s:%s in PO file.' %
-                (sheet.name, cell_id(row, column)))
-        return False
 
     msg.msgstr = translation
     if fuzzy and 'fuzzy' not in msg.flags:
@@ -106,15 +106,20 @@ def ConvertXlsPo():
     found_locale = False
     for sheet in book.sheets():
         for col in range(2, sheet.ncols):
-            locale = cell_string(sheet, 0, col)
-            if locale != options.locale:
+            context = cell_string(sheet, 0, col)
+            if context != u'Translator comment' and context != options.locale:
                 continue
-            found_locale = True
 
             for row in range(1, sheet.nrows):
-                if not checkRow(sheet, row):
+                msg = find_msg(sheet, row, catalog)
+                if msg is None:
                     continue
-                addRow(catalog, sheet, row, col)
+
+                if context == u'Translator comment':
+                    msg.tcomment = cell_string(sheet, row, col) or u''
+                else:
+                    found_locale = True
+                    update_message(msg, sheet, row, col)
 
     if not found_locale:
         print >> sys.stderr, 'No translations found for locale %s' % \
@@ -124,9 +129,29 @@ def ConvertXlsPo():
     replace_catalog(options.output_file, catalog)
 
 
+class CommentAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string):
+        options = ['translator', 'extracted', 'reference']
+        values = [v.strip() for v in values.split(',')]
+        comments = set()
+        for value in values:
+            if value == 'all':
+                comments.update(options)
+                break
+            elif value in options:
+                comments.add(value)
+            else:
+                raise argparse.ArgumentError(self, 'Invalid comment option')
+        setattr(namespace, self.dest, comments)
+
+
 def ConvertPoXls():
     parser = argparse.ArgumentParser(
             description='Convert Po files for a domain to an Excel file.')
+    parser.add_argument('--comments',
+            action=CommentAction, default='',
+            help='Comments to include in xls file. This is a comma separated '
+                 'list of "translator", "extracted", "reference" or "all".')
     parser.add_argument('-p',
             dest='input', action='append', nargs=2, required=True,
             metavar=('<locale>', '<po file>'),
@@ -146,10 +171,7 @@ def ConvertPoXls():
             if not msg.msgid:
                 continue
             if msg.msgid not in seen:
-                default = msg.comment
-                if default.startswith('Default: '):
-                    default = default[9:]
-                messages.append((msg.msgid, default))
+                messages.append((msg.msgid, msg))
                 seen.add(msg.msgid)
 
     book = xlwt.Workbook(encoding='utf-8')
@@ -158,23 +180,50 @@ def ConvertPoXls():
     italic_style.font.italic = True
     italic_style.font.bold = True
     sheet = book.add_sheet(u'Translations')
-    row = 1
-    sheet.write(0, 0, u'Message id')
-    sheet.write(0, 1, u'Default text')
+    column = 0
+    sheet.write(0, column, u'Message id')
+    column += 1
+    if 'reference' in options.comments:
+        sheet.write(0, column, u'References')
+        column += 1
+    if 'extracted' in options.comments:
+        sheet.write(0, column, u'Source comment')
+        column += 1
+    if 'translator' in options.comments:
+        sheet.write(0, column, u'Translator comment')
+        column += 1
     for (i, cat) in enumerate(catalogs):
-        sheet.write(0, i + 2, cat[0])
+        sheet.write(0, column, cat[0])
+        column += 1
 
-    for (msgid, default) in messages:
+    row = 1
+    for (msgid, message) in messages:
+        column = 0
         sheet.write(row, 0, msgid)
-        sheet.write(row, 1, default)
+        column += 1
+        if 'reference' in options.comments:
+            o = []
+            for (entry, lineno) in msg.occurrences:
+                if lineno:
+                    o.append(u'%s:%s' % (entry, lineno))
+                else:
+                    o.append(entry)
+            sheet.write(row, column, u', '.join(o))
+            column += 1
+        if 'extracted' in options.comments:
+            sheet.write(row, column, msg.comment)
+            column += 1
+        if 'translator' in options.comments:
+            sheet.write(row, column, msg.tcomment)
+            column += 1
         for (i, cat) in enumerate(catalogs):
             cat = cat[1]
             msg = cat.find(msgid)
             if msgid is not None:
                 if 'fuzzy' in msg.flags:
-                    sheet.write(row, i + 2, msg.msgstr, italic_style)
+                    sheet.write(row, column, msg.msgstr, italic_style)
                 else:
-                    sheet.write(row, i + 2, msg.msgstr)
+                    sheet.write(row, column, msg.msgstr)
         row += 1
 
     book.save(options.output_file)

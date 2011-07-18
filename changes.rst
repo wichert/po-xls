@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0b3 - July 18, 2011
+---------------------
+
+* Paper brown bag: remove debug leftover which broke po-to-xls.
+
+
 1.0b2 - July 18, 2011
 ---------------------
 
