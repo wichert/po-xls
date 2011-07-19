@@ -197,13 +197,14 @@ def ConvertPoXls():
         column += 1
 
     row = 1
+    ref_catalog = catalogs[0][1]
     for (msgid, message) in messages:
         column = 0
         sheet.write(row, 0, msgid)
         column += 1
+        msg = ref_catalog.find(msgid)
         if 'reference' in options.comments:
             o = []
-            msg = catalogs[0][1].find(msgid)
             if msg is not None:
                 for (entry, lineno) in msg.occurrences:
                     if lineno:
@@ -213,10 +214,12 @@ def ConvertPoXls():
             sheet.write(row, column, u', '.join(o))
             column += 1
         if 'extracted' in options.comments:
-            sheet.write(row, column, msg.comment)
+            if msg is not None:
+                sheet.write(row, column, msg.comment)
             column += 1
         if 'translator' in options.comments:
-            sheet.write(row, column, msg.tcomment)
+            if msg is not None:
+                sheet.write(row, column, msg.tcomment)
             column += 1
         for (i, cat) in enumerate(catalogs):
             cat = cat[1]
