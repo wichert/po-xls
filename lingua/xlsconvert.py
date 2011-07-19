@@ -224,6 +224,7 @@ def ConvertPoXls():
                     sheet.write(row, column, msg.msgstr, italic_style)
                 else:
                     sheet.write(row, column, msg.msgstr)
+            column += 1
         row += 1
 
     book.save(options.output_file)

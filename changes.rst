@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0 - Unreleased
+----------------
+
+* Fix po-to-xls when including multiple languages in a single xls file.
+
+
 1.0b3 - July 18, 2011
 ---------------------
 
