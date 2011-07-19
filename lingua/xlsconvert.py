@@ -203,11 +203,13 @@ def ConvertPoXls():
         column += 1
         if 'reference' in options.comments:
             o = []
-            for (entry, lineno) in msg.occurrences:
-                if lineno:
-                    o.append(u'%s:%s' % (entry, lineno))
-                else:
-                    o.append(entry)
+            msg = catalogs[0][1].find(msgid)
+            if msg is not None:
+                for (entry, lineno) in msg.occurrences:
+                    if lineno:
+                        o.append(u'%s:%s' % (entry, lineno))
+                    else:
+                        o.append(entry)
             sheet.write(row, column, u', '.join(o))
             column += 1
         if 'extracted' in options.comments:
