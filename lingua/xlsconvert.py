@@ -219,7 +219,7 @@ def ConvertPoXls():
         for (i, cat) in enumerate(catalogs):
             cat = cat[1]
             msg = cat.find(msgid)
-            if msgid is not None:
+            if msg is not None:
                 if 'fuzzy' in msg.flags:
                     sheet.write(row, column, msg.msgstr, italic_style)
                 else:
