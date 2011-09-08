@@ -47,6 +47,8 @@ class PythonExtractor(object):
         elif ttype == tokenize.NAME:
             self._parameter = tstring
             self.state = self.stateInFactoryParameter
+        elif ttype == tokenize.NL:
+            pass
         else:
             # Effectively a syntax error, but ignore and reset state
             self.msg = None

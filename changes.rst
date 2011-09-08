@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0b5 - Unreleased
+-------------------
+
+* Fix Python extractor to handle strings split over multiple lines
+  correctly.
+
 1.0b4 - July 20, 2011
 ---------------------
 
