@@ -131,6 +131,7 @@ class ExtractTests(unittest.TestCase):
                 """
         self.assertEqual(self.extract(snippet),
                 [(2, None, u"Dummy text", [])])
+
     def test_translate_HtmlEntity(self):
         snippet="""\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
@@ -140,3 +141,14 @@ class ExtractTests(unittest.TestCase):
         self.assertEqual(self.extract(snippet),
                 [(2, None, u"lock &amp; load&nbsp;", [])])
 
+    def test_ignore_undeclared_namespace(self):
+        snippet = """\
+                <html xmlns="http://www.w3.org/1999/xhtml"
+                      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <tal:block/>
+                  <p i18n:translate="">Test</p>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(5, None, u"Test", [])])

@@ -4,8 +4,13 @@ Changelog
 1.0b5 - Unreleased
 -------------------
 
+* Update XML extractor to not abort when encountering undeclared
+  namespaces. This fixes `issue 3
+  <https://github.com/wichert/lingua/issues/3>`_.
+
 * Fix Python extractor to handle strings split over multiple lines
   correctly.
+
 
 1.0b4 - July 20, 2011
 ---------------------

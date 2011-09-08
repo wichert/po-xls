@@ -7,16 +7,17 @@ from xml.parsers import expat
 class TranslateContext(object):
     WHITESPACE = re.compile(u"\s{2,}")
 
-    def __init__(self, msgid, lineno):
+    def __init__(self, msgid, lineno, i18n_prefix):
         self.msgid = msgid
         self.text = []
         self.lineno = lineno
+        self.i18n_prefix = i18n_prefix
 
     def addText(self, text):
         self.text.append(text)
 
     def addNode(self, name, attributes):
-        name = attributes.get('http://xml.zope.org/namespaces/i18n name')
+        name = attributes.get('%s:name' % self.i18n_prefix)
         if name:
             self.text.append(u'${%s}' % name)
         else:
@@ -39,7 +40,7 @@ class XmlExtractor(object):
         self.comment_tags = comment_tags
         self.options = options
         self.messages = []
-        self.parser = expat.ParserCreate(namespace_separator=' ')
+        self.parser = expat.ParserCreate()
         self.parser.returns_unicode = True
         self.parser.UseForeignDTD()
         self.parser.SetParamEntityParsing(
@@ -50,6 +51,7 @@ class XmlExtractor(object):
         self.parser.DefaultHandler = self.DefaultHandler
         self.domainstack = collections.deque()
         self.translatestack = collections.deque([None])
+        self.prefix_stack = collections.deque([None])
 
         try:
             self.parser.ParseFile(fileobj)
@@ -62,9 +64,15 @@ class XmlExtractor(object):
                 (self.parser.CurrentLineNumber, None, message, comments))
 
     def StartElementHandler(self, name, attributes):
-        new_domain = attributes.get(
-                'http://xml.zope.org/namespaces/i18n domain')
-        if new_domain:
+        i18n_prefix = self.prefix_stack[-1]
+        for (attr, value) in attributes.items():
+            if value == 'http://xml.zope.org/namespaces/i18n' and \
+                    attr.startswith('xmlns:'):
+                i18n_prefix = attr[6:]
+        self.prefix_stack.append(i18n_prefix)
+
+        new_domain = attributes.get('%s:domain' % i18n_prefix)
+        if i18n_prefix and new_domain:
             self.domainstack.append(new_domain)
         elif self.domainstack:
             self.domainstack.append(self.domainstack[-1])
@@ -72,20 +80,18 @@ class XmlExtractor(object):
         if self.translatestack[-1]:
             self.translatestack[-1].addNode(name, attributes)
 
-        i18n_translate = attributes.get(
-                'http://xml.zope.org/namespaces/i18n translate')
-        if i18n_translate is not None:
+        i18n_translate = attributes.get('%s:translate' % i18n_prefix)
+        if i18n_prefix and i18n_translate is not None:
             self.translatestack.append(TranslateContext(
-                i18n_translate, self.parser.CurrentLineNumber))
+                i18n_translate, self.parser.CurrentLineNumber, i18n_prefix))
         else:
             self.translatestack.append(None)
 
         if not self.domainstack:
             return
 
-        i18n_attributes = attributes.get(
-                'http://xml.zope.org/namespaces/i18n attributes')
-        if i18n_attributes:
+        i18n_attributes = attributes.get('%s:attributes' % i18n_prefix)
+        if i18n_prefix and i18n_attributes:
             parts = [p.strip() for p in i18n_attributes.split(';')]
             for msgid in parts:
                 if ' ' not in msgid:
@@ -128,9 +134,10 @@ class XmlExtractor(object):
             data = data[m.start() + length:]
 
     def EndElementHandler(self, name):
+        if self.prefix_stack:
+            self.prefix_stack.pop()
         if self.domainstack:
             self.domainstack.pop()
-
         translate = self.translatestack.pop()
         if translate:
             self.messages.append(translate.message())
