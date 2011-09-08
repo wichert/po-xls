@@ -51,7 +51,7 @@ def find_msg(sheet, row, catalog):
     if msg is None:
         print >> sys.stderr, \
                 ('Can not find translation for cell %s:%s in PO file.' %
-                (sheet.name, cell_id(row, column)))
+                (sheet.name, cell_id(row, 0)))
         return None
 
     return msg
