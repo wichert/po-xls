@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.0b5 - Unreleased
--------------------
+1.0 - September 8, 2011
+-----------------------
 
 - Update XML extractor to ignore elements which only contain a Chameleon
   expression (``${....}``). These can happen to give the template engine
