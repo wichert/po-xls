@@ -4,6 +4,11 @@ Changelog
 1.0b5 - Unreleased
 -------------------
 
+- Update XML extractor to ignore elements which only contain a Chameleon
+  expression (``${....}``). These can happen to give the template engine
+  a hint that it should try to translate the result of an expression. This
+  fixes `issue 2 <https://github.com/wichert/lingua/issues/2>`_.
+
 * Update XML extractor to not abort when encountering undeclared
   namespaces. This fixes `issue 3
   <https://github.com/wichert/lingua/issues/3>`_.

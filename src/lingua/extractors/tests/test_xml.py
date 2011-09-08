@@ -152,3 +152,13 @@ class ExtractTests(unittest.TestCase):
                 """
         self.assertEqual(self.extract(snippet),
                 [(5, None, u"Test", [])])
+
+    def test_ignore_dynamic_message(self):
+        snippet = """\
+                <html xmlns="http://www.w3.org/1999/xhtml"
+                      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <p i18n:translate="">${'dummy'}</p>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet), [])

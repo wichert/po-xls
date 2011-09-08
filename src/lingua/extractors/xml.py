@@ -6,6 +6,7 @@ from xml.parsers import expat
 
 class TranslateContext(object):
     WHITESPACE = re.compile(u"\s{2,}")
+    EXPRESSION = re.compile(u"\s*\${[^}]*}\s*")
 
     def __init__(self, msgid, lineno, i18n_prefix):
         self.msgid = msgid
@@ -22,6 +23,12 @@ class TranslateContext(object):
             self.text.append(u'${%s}' % name)
         else:
             self.text.append(u'<dynamic element>')
+
+    def ignore(self):
+        text = u''.join(self.text).strip()
+        text = self.WHITESPACE.sub(u' ', text)
+        text = self.EXPRESSION.sub(u'', text)
+        return not text 
 
     def message(self):
         text = u''.join(self.text).strip()
@@ -139,7 +146,7 @@ class XmlExtractor(object):
         if self.domainstack:
             self.domainstack.pop()
         translate = self.translatestack.pop()
-        if translate:
+        if translate and not translate.ignore():
             self.messages.append(translate.message())
 
 
