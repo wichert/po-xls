@@ -13,8 +13,6 @@ class PythonExtractor(object):
         self.state = self.stateWaiting
         self.msg = None
         self.keywords = keywords
-        self.state = self.stateWaiting
-        self.msg = None
         self.messages = []
         self.encoding = parse_encoding(fileobj) or "ascii"
         tokens = tokenize.generate_tokens(fileobj.readline)
