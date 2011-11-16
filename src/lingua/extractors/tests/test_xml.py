@@ -24,7 +24,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"tést title", [])])
+                [(3, None, u"tést title", [])])
 
     def test_attributes_without_ns(self):
         snippet = """\
@@ -41,9 +41,9 @@ class ExtractTests(unittest.TestCase):
         self.assertEqual(self.extract(snippet),
                 [
                     (2, None, u"Foo", []),
-                    (4, None, u"Foo", []),
-                    (6, None, u"Foo", []),
+                    (5, None, u"Foo", []),
                     (7, None, u"Foo", []),
+                    (8, None, u"Foo", []),
                  ])
 
     def test_attributes_explicitMessageId(self):
@@ -54,7 +54,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"msg_title", [u"Default: test tïtle"])])
+                [(3, None, u"msg_title", [u"Default: test tïtle"])])
 
     def test_attributes_NoDomain(self):
         snippet = """\
@@ -73,8 +73,8 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"tést title", []),
-                 (2, None, u"test ålt", [])])
+                [(3, None, u"tést title", []),
+                 (3, None, u"test ålt", [])])
 
     def test_attributes_multipleAttributesWithExplicitMessageId(self):
         snippet = """\
@@ -85,8 +85,8 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(sorted(self.extract(snippet)),
-                [(2, None, "msg_alt", [u"Default: test ålt"]),
-                 (2, None, "msg_title", [u"Default: test titlé"])])
+                [(3, None, "msg_alt", [u"Default: test ålt"]),
+                 (3, None, "msg_title", [u"Default: test titlé"])])
 
     def test_translate_minimal(self):
         snippet = """\
@@ -96,7 +96,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"Dummy téxt", [])])
+                [(3, None, u"Dummy téxt", [])])
 
     def test_translate_explicitMessageId(self):
         snippet = """\
@@ -106,7 +106,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"msgid_dummy", [u"Default: Dummy téxt"])])
+                [(3, None, u"msgid_dummy", [u"Default: Dummy téxt"])])
 
     def test_translate_subelement(self):
         snippet = """\
@@ -117,7 +117,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, "msgid_dummy",
+                [(3, None, "msgid_dummy",
                     [u"Default: Dummy <dynamic element> demø"])])
 
     def test_translate_namedSubelement(self):
@@ -129,7 +129,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"msgid_dummy", [u"Default: Dummy ${text} demø"])])
+                [(3, None, u"msgid_dummy", [u"Default: Dummy ${text} demø"])])
 
     def test_translate_translatedSubElement(self):
         snippet = """\
@@ -142,8 +142,8 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(sorted(self.extract(snippet)),
-                [(2, None, u"msgid_dummy", [u"Default: Dummy ${text} demø"]),
-                 (2, None, u"msgid_text", [u"Default: téxt"])])
+                [(3, None, u"msgid_dummy", [u"Default: Dummy ${text} demø"]),
+                 (4, None, u"msgid_text", [u"Default: téxt"])])
 
     def test_translate_stripExtraWhitespace(self):
         snippet = """\
@@ -156,7 +156,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"Dummy text", [])])
+                [(3, None, u"Dummy text", [])])
 
     def test_translate_stripTrailingAndLeadingWhitespace(self):
         snippet = """\
@@ -168,7 +168,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"Dummy text", [])])
+                [(3, None, u"Dummy text", [])])
 
     def test_translate_HtmlEntity(self):
         snippet = """\
@@ -178,7 +178,7 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"lock &amp; load&nbsp;", [])])
+                [(3, None, u"lock &amp; load&nbsp;", [])])
 
     def test_ignore_undeclared_namespace(self):
         snippet = """\
