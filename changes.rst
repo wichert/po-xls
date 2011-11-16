@@ -4,8 +4,7 @@ Changelog
 1.1 - Unreleased
 ----------------
 
-- ...
-
+- Set 'i18n' attribute as default prefix where there was no prefix found. [kiorky]
 
 1.0 - September 8, 2011
 -----------------------

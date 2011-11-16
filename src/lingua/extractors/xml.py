@@ -58,7 +58,7 @@ class XmlExtractor(object):
         self.parser.DefaultHandler = self.DefaultHandler
         self.domainstack = collections.deque()
         self.translatestack = collections.deque([None])
-        self.prefix_stack = collections.deque([None])
+        self.prefix_stack = collections.deque(['i18n'])
 
         try:
             self.parser.ParseFile(fileobj)
