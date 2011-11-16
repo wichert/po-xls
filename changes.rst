@@ -1,10 +1,14 @@
 Changelog
 =========
 
-1.1 - Unreleased
-----------------
+1.1 - November 16, 2011
+-----------------------
 
-- Set 'i18n' attribute as default prefix where there was no prefix found. [kiorky]
+- Set 'i18n' attribute as default prefix where there was no prefix found.
+  This fixes issues `5 <https://github.com/wichert/lingua/issues/5>`_ and
+  `6 <https://github.com/wichert/lingua/issues/5>`_. Thanks to
+  Mathieu Le Marec - Pasquet for the patch.
+
 
 1.0 - September 8, 2011
 -----------------------
@@ -53,4 +57,3 @@ Changelog
 --------------------
 
 * First release.
-
