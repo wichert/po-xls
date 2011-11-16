@@ -29,10 +29,20 @@ class ExtractTests(unittest.TestCase):
         snippet="""\
                 <html>
                     <dummy i18n:translate="">Foo</dummy>
+                    <other xmlns:i="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua"> 
+                        <dummy i:translate="">Foo</dummy>
+                    </other>
+                    <dummy i18n:translate="">Foo</dummy>
+                    <dummy i18n:translate="">Foo</dummy>
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
-                [(2, None, u"Foo", [])])
+                [
+                    (2, None, u"Foo", []),
+                    (4, None, u"Foo", []),
+                    (6, None, u"Foo", []),
+                    (7, None, u"Foo", []),
+                 ])
 
     def test_attributes_explicitMessageId(self):
         snippet="""\

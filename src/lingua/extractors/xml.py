@@ -58,7 +58,7 @@ class XmlExtractor(object):
         self.parser.DefaultHandler = self.DefaultHandler
         self.domainstack = collections.deque()
         self.translatestack = collections.deque([None])
-        self.prefix_stack = collections.deque([None])
+        self.prefix_stack = collections.deque(['i18n'])
 
         try:
             self.parser.ParseFile(fileobj)
@@ -77,8 +77,6 @@ class XmlExtractor(object):
                     attr.startswith('xmlns:'):
                 i18n_prefix = attr[6:]
         self.prefix_stack.append(i18n_prefix)
-        if not i18n_prefix:
-            i18n_prefix = 'i18n'
 
         new_domain = attributes.get('%s:domain' % i18n_prefix)
         if i18n_prefix and new_domain:
