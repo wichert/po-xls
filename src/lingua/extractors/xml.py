@@ -28,7 +28,7 @@ class TranslateContext(object):
         text = u''.join(self.text).strip()
         text = self.WHITESPACE.sub(u' ', text)
         text = self.EXPRESSION.sub(u'', text)
-        return not text 
+        return not text
 
     def message(self):
         text = u''.join(self.text).strip()
