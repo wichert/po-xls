@@ -25,6 +25,15 @@ class ExtractTests(unittest.TestCase):
         self.assertEqual(self.extract(snippet),
                 [(2, None, u"tést title", [])])
 
+    def test_attributes_without_ns(self):
+        snippet="""\
+                <html>
+                    <dummy i18n:translate="">Foo</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(2, None, u"Foo", [])])
+
     def test_attributes_explicitMessageId(self):
         snippet="""\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="lingua">
