@@ -201,3 +201,86 @@ class ExtractTests(unittest.TestCase):
                 </html>
                 """
         self.assertEqual(self.extract(snippet), [])
+
+    def test_translate_underscore_call_with_unicode_arg(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy tal:replace="_(u'foo')">Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", [])])
+
+    def test_translate_underscore_call_with_str_arg(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy tal:replace='_("foo")'>Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", [])])
+
+    def test_translate_underscore_call_with_parenthesis(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy tal:replace='_("f (o) o")'>Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"f (o) o", [])])
+
+    def test_translate_underscore_call_with_default(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy tal:replace='_("foo", default="blah")'>Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", [u'Default: blah'])])
+
+    def test_translate_multiple_underscore_calls(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy \
+                tal:replace="multiple(_('foo'), _('blah'))">Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", []),
+                 (3, None, u"blah", [])])
+
+    def test_translate_inner_underscore_call(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy>${_("foo")}</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", [])])
+
+    def test_translate_inner_multiple_underscore_calls(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy>${dummy(_("foo"), _("bar"))}</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", []),
+                 (3, None, u"bar", [])])
+
+    def test_translate_inner_underscore_call_with_default(self):
+        snippet = """\
+                <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+                      i18n:domain="lingua">
+                  <dummy>${_("foo", default="blah")}>Dummy</dummy>
+                </html>
+                """
+        self.assertEqual(self.extract(snippet),
+                [(3, None, u"foo", [u'Default: blah'])])
