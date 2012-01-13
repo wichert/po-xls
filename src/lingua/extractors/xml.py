@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 import collections
 import re
+from StringIO import StringIO
 from xml.parsers import expat
+
+from lingua.extractors.python import PythonExtractor
 
 
 class TranslateContext(object):
@@ -41,6 +44,7 @@ class TranslateContext(object):
 
 class XmlExtractor(object):
     ENTITY = re.compile(r"&([A-Za-z]+|#[0-9]+);")
+    UNDERSCORE_CALL = re.compile("_\(")
 
     def __call__(self, fileobj, keywords, comment_tags, options):
         self.keywords = keywords
@@ -69,6 +73,15 @@ class XmlExtractor(object):
     def addMessage(self, message, comments=[]):
         self.messages.append(
                 (self.parser.CurrentLineNumber, None, message, comments))
+
+    def addUndercoreCalls(self, message):
+        msg = message
+        if isinstance(msg, unicode):
+            msg = msg.encode('utf-8')
+        py_extractor = PythonExtractor()
+        py_messages = py_extractor(StringIO(msg), ['_'], None, None)
+        for (line, _, py_message, comments) in py_messages:
+            self.addMessage(py_message, comments)
 
     def StartElementHandler(self, name, attributes):
         i18n_prefix = self.prefix_stack[-1]
@@ -114,11 +127,18 @@ class XmlExtractor(object):
                         continue
                     self.addMessage(msgid, [u'Default: %s' % attributes[attr]])
 
+        for (attr, value) in attributes.items():
+            if self.UNDERSCORE_CALL.search(value):
+                self.addUndercoreCalls(value)
+
     def DefaultHandler(self, data):
         if data.startswith(u'&') and self.translatestack[-1]:
             self.translatestack[-1].addText(data)
 
     def CharacterDataHandler(self, data):
+        if TranslateContext.EXPRESSION.search(data) and \
+                self.UNDERSCORE_CALL.search(data):
+            self.addUndercoreCalls(data)
         if not self.translatestack[-1]:
             return
 
