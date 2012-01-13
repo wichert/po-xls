@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.2 - Unreleased
-----------------
+1.2 - January 13, 2012
+----------------------
 
 - Extend XML extractor to check python expressions in templates. This
   fixes `issue 7 <https://github.com/wichert/lingua/pull/7>`_. Thanks to
