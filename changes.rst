@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3 - Unreleased
-----------------
+1.3 - January 28, 2012
+----------------------
 
 - XLS->Po conversion failed for the first language if no comment or
   reference columns were generated. Reported by Rocky Feng.
