@@ -4,6 +4,9 @@ Changelog
 1.3 - Unreleased
 ----------------
 
+- XLS->Po conversion failed for the first language if no comment or
+  reference columns were generated. Reported by Rocky Feng.
+
 - Properly support Windows in the xls-po convertors: Windows does not
   support atomic file renames, so revert to shutils.rename on that
   platform. Reported by Rocky Feng.

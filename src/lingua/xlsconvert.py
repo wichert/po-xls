@@ -110,7 +110,7 @@ def ConvertXlsPo():
 
     found_locale = False
     for sheet in book.sheets():
-        for col in range(2, sheet.ncols):
+        for col in range(1, sheet.ncols):
             context = cell_string(sheet, 0, col)
             if context != u'Translator comment' and context != options.locale:
                 continue
