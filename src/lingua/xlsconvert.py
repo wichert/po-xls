@@ -1,6 +1,7 @@
 import argparse
 import os.path
 import re
+import shutil
 import sys
 import xlrd
 import xlwt
@@ -13,7 +14,11 @@ VARIABLE_RE = re.compile(r"\${(.*?)}")
 def replace_catalog(filename, catalog):
     tmpfile = filename + '~'
     catalog.save(tmpfile)
-    os.rename(tmpfile, filename)
+    if sys.platform in ['win32', 'cygwin']:
+        # Windows does not support atomic renames.
+        shutil.move(tmpfile, filename)
+    else:
+        os.rename(tmpfile, filename)
 
 
 def to_base26(value):

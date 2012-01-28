@@ -4,7 +4,9 @@ Changelog
 1.3 - Unreleased
 ----------------
 
-- ...
+- Properly support Windows in the xls-po convertors: Windows does not
+  support atomic file renames, so revert to shutils.rename on that
+  platform. Reported by Rocky Feng.
 
 
 1.2 - January 13, 2012
