@@ -50,7 +50,7 @@ class ExtractTests(unittest.TestCase):
         snippet = """\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
                       i18n:domain="lingua">
-                  <dummy i18n:attributes="msg_title title" title="test tïtle"/>
+                  <dummy i18n:attributes="title msg_title" title="test tïtle"/>
                 </html>
                 """
         self.assertEqual(self.extract(snippet),
@@ -80,7 +80,7 @@ class ExtractTests(unittest.TestCase):
         snippet = """\
                 <html xmlns:i18n="http://xml.zope.org/namespaces/i18n"
                       i18n:domain="lingua">
-                  <dummy i18n:attributes="msg_title title; msg_alt alt"
+                  <dummy i18n:attributes="title msg_title; alt msg_alt"
                          title="test titlé" alt="test ålt"/>
                 </html>
                 """

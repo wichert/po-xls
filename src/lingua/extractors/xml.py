@@ -120,7 +120,7 @@ class XmlExtractor(object):
                     self.addMessage(attributes[msgid])
                 else:
                     try:
-                        (msgid, attr) = msgid.split()
+                        (attr, msgid) = msgid.split()
                     except ValueError:
                         continue
                     if attr not in attributes:
