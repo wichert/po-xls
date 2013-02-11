@@ -4,7 +4,7 @@ Changelog
 1.4 - Unreleased
 ----------------
 
-- ..
+- Po->XLS convertor accidentily included obsolete messages .
 
 
 1.3 - January 28, 2012

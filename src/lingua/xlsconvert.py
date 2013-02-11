@@ -69,7 +69,7 @@ def getVariables(text):
     return variables
 
 
-def update_message(msg,  sheet, row, column):
+def update_message(msg, sheet, row, column):
     if msg.comment.startswith(u'Default:'):
         canonical = msg.comment[9:]
     else:
@@ -173,7 +173,7 @@ def ConvertPoXls():
     seen = set()
     for catalog in catalogs:
         for msg in catalog[1]:
-            if not msg.msgid:
+            if not msg.msgid or msg.obsolete:
                 continue
             if msg.msgid not in seen:
                 messages.append((msg.msgid, msg))
