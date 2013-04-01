@@ -284,3 +284,11 @@ class ExtractTests(unittest.TestCase):
                 """
         self.assertEqual(self.extract(snippet),
                 [(3, None, u"foo", [u'Default: blah'])])
+
+    def test_abort_on_invalid_xml(self):
+        snippet = """\
+                <html>
+                  <h2 id=bar>Foo</h2>
+                </html>
+                """
+        self.assertRaises(SystemExit, self.extract, snippet)

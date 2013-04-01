@@ -4,7 +4,8 @@ Changelog
 1.5 - Unreleased
 -----------------------
 
-- ...
+- Do not silently ignore XML parsing errors. Instead print an error message
+  and abort.
 
 
 1.4 - February 11, 2013
