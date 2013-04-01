@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.5 - Unreleased
------------------------
+1.5 - April 1, 2013
+-------------------
 
 - Do not silently ignore XML parsing errors. Instead print an error message
   and abort.
