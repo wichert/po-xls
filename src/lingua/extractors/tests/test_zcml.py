@@ -8,10 +8,7 @@ class ExtractTests(unittest.TestCase):
         snippet = StringIO(snippet)
         return list(extract_zcml(snippet, None, None, None))
 
-    def testInvalidXML(self):
-        self.assertEqual(self.extract(""), [])
-
-    def testEmptyXml(self):
+    def test_empty_xml(self):
         self.assertEqual(self.extract("<configure/>"), [])
 
     def testi18nWithoutDomain(self):
@@ -53,3 +50,11 @@ class ExtractTests(unittest.TestCase):
                 """
         self.assertEqual(self.extract(snippet),
                 [(3, None, "test title 1", [])])
+
+    def test_abort_on_invalid_xml(self):
+        snippet = """\
+                <html>
+                  <h2 id=bar>Foo</h2>
+                </html>
+                """
+        self.assertRaises(SystemExit, self.extract, snippet)

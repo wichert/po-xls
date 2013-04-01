@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import collections
+import sys
 from xml.parsers import expat
 
 
@@ -17,8 +18,15 @@ class ZcmlExtractor(object):
         self.domainstack = collections.deque()
         try:
             self.parser.ParseFile(fileobj)
-        except expat.ExpatError:
-            pass
+        except expat.ExpatError as e:
+            if getattr(fileobj, 'name', None):
+                print >> sys.stderr, \
+                        ('Aborting due to parse error in %s: %s' %
+                                (fileobj.name, e.message))
+            else:
+                print >> sys.stderr, \
+                        ('Aborting due to parse error: %s' % e.message)
+            sys.exit(1)
         return self.messages
 
     def addMessage(self, message, comments=[]):
