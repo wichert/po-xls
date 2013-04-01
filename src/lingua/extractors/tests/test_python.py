@@ -10,6 +10,11 @@ class ExtractTests(unittest.TestCase):
         snippet = StringIO(snippet)
         return list(extract_python(snippet, ['_'], None, None))
 
+    def test_syntax_error(self):
+        self.assertEqual(
+                self.extract("def class xya _('foo')"),
+                [(1, None, u'foo', [])])
+
     def test_multiline_string(self):
         self.assertEqual(
                 self.extract("_('one two '\n'three')"),
