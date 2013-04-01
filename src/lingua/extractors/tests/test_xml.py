@@ -10,10 +10,7 @@ class ExtractTests(unittest.TestCase):
         snippet = StringIO(snippet)
         return list(extract_xml(snippet, None, None, None))
 
-    def testInvalidXML(self):
-        self.assertEqual(self.extract(""), [])
-
-    def testEmptyXml(self):
+    def test_empty_xml(self):
         self.assertEqual(self.extract("<html/>"), [])
 
     def test_attributes_plain(self):
