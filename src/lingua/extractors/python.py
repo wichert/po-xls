@@ -10,6 +10,11 @@ def safe_eval(s, encoding='ascii'):
 
 class PythonExtractor(object):
     def __call__(self, fileobj, keywords, comment_tags, options):
+        if not isinstance(keywords, dict):
+            keywords = dict.fromkeys(keywords)
+            if 'ngettext' in keywords:
+                keywords['ngettext'] = (1, 2)
+                keywords['pluralize'] = (1, 2)
         self.state = self.stateWaiting
         self.msg = None
         self.keywords = keywords
@@ -21,10 +26,15 @@ class PythonExtractor(object):
         return self.messages
 
     def stateWaiting(self, ttype, tstring, lineno):
-        if ttype == tokenize.NAME and tstring in self.keywords:
-            self.state = self.stateKeywordSeen
-            self.msg = dict(lineno=lineno)
-
+        if ttype == tokenize.NAME:
+            if tstring in self.keywords:
+                self.state = self.stateKeywordSeen
+                self.msg = dict(lineno=lineno)
+                if self.keywords[tstring] is None:
+                    self.msg['type'] = 'singular'
+                else:
+                    self.msg['type'] = 'plural'
+    
     def stateKeywordSeen(self, ttype, tstring, lineno):
         # We have seen _, now check if this is a _( .. ) call
         if ttype == tokenize.OP and tstring == '(':
@@ -95,8 +105,15 @@ class PythonExtractor(object):
             comments = [u'Default: %s' % u''.join(default)]
         else:
             comments = []
+        label = msg['label']
+        if (msg['type'] == 'singular'):
+            label = u''.join(msg['label'])
+            positions = '_'
+        else:
+            label += default
+            positions = 'ngettext'
         self.messages.append(
-                (msg['lineno'], None, u''.join(msg['label']), comments))
+                (msg['lineno'], positions, label, comments))
 
 
 extract_python = PythonExtractor()
