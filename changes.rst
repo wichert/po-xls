@@ -4,7 +4,8 @@ Changelog
 1.6 - Unreleased
 -------------------
 
-- ...
+- Add support for ngettext and pluralize() for correctly generating plurals in
+  pot files.
 
 
 1.5 - April 1, 2013
