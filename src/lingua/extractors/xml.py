@@ -87,7 +87,7 @@ class XmlExtractor(object):
         if isinstance(msg, unicode):
             msg = msg.encode('utf-8')
         py_extractor = PythonExtractor()
-        py_messages = py_extractor(StringIO(msg), ['_'], None, None)
+        py_messages = py_extractor(StringIO(msg), {'_':None}, None, None)
         for (line, _, py_message, comments) in py_messages:
             self.addMessage(py_message, comments)
 
