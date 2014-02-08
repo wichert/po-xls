@@ -1,6 +1,7 @@
-/src/lingua.egg-info
+/src/poxls.egg-info
 /dist
 /build
 *.pyo
 *.pyc
 *.egg
+*.swp

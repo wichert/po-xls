@@ -1,28 +1,3 @@
-Introduction
-============
-
-This package contains a set of tools to help manage translations
-in Python software. 
-
-
-Babel extraction plugins
-========================
-
-lingua contains two extraction plugins for `Babel
-<http://babel.edgewall.org/>`_:
-
-* ``lingua_python``, which supports translation strings as used in `Pyramid
-  <http://pylonsproject.org>`_ (via `translationstring
-  <http://pypi.python.org/pypi/translationstring>`_) and Zope2/ZTK (via
-  `zope.i18nmessageid <http://pypi.python.org/pypi/zope.i18nmessageid>`_).
-* ``lingua_xml``, which supports the i18n syntax as used by `Chameleon
-  <http://pagetemplates.org/>`_ and Zope PageTempaltes,
-
-Detailed information on using Babel extraction plugins can be found in the
-`Babel documentation
-<http://babel.edgewall.org/wiki/Documentation/setup.html#method-mapping>`_.
-
-
 Translating via spreadsheets
 ============================
 
@@ -59,29 +34,3 @@ Translations can be merged back from a spreadsheet into a PO-file using the
 
 This will take the Dutch (`nl`) translations from `texts.xls` and use those to
 upgrade the `nl.po` file.
-
-
-Sanity checking
-===============
-
-Lingua includes a simple `polint` tool which performs a few basic checks on PO
-files. Currently implemented tests are:
-
-* duplicated message ids (can also be checked with `msgfmt`). These should
-  never happen and are usually a result of a bug in the message extraction
-  logic.
-
-* identical translations used for multiple canonical texts. This can happen
-  for valid reasons, for example when the original text is not spelled
-  consistently.
-
-To check a po file simply run `polint` with the po file as argument::
-
-    polint nl.po
-
-    Translation:
-        ${val} ist keine Zeichenkette
-    Used for 2 canonical texts:
-    1       ${val} is not a string
-    2       "${val}" is not a string
-

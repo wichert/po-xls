@@ -1,50 +1,46 @@
 from setuptools import setup, find_packages
 import sys
 
-version = '1.7dev'
+version = '1.0.0'
 
 install_requires=[
-        "polib",
-        "xlrd",
-        "xlwt",
+        'polib',
+        'xlrd',
+        'xlwt',
         ]
 if sys.version_info<(2,7):
-    install_requires.append("argparse")
+    install_requires.append('argparse')
 
-setup(name="lingua",
+setup(name='poxls',
       version=version,
-      description="Translation toolset",
+      description='Convert between Excel and PO files',
       long_description=open('README.rst').read() + '\n' + \
               open('changes.rst').read(),
       classifiers=[
-          "Intended Audience :: Developers",
-          "License :: DFSG approved",
-          "License :: OSI Approved :: BSD License",
-          "Operating System :: OS Independent",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.6",
-          "Programming Language :: Python :: 2.7",
-          "Topic :: Software Development :: Libraries :: Python Modules",
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: DFSG approved',
+          'License :: OSI Approved :: BSD License',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Intended Audience :: Developers',
+          'Intended Audience :: End Users/Desktop',
           ],
       keywords='translation po gettext Babel',
-      author="Wichert Akkerman",
-      author_email="wichert@wiggy.net",
-      url='https://github.com/wichert/lingua',
+      author='Wichert Akkerman',
+      author_email='wichert@wiggy.net',
+      url='https://github.com/wichert/po-xls',
       license='BSD',
       packages=find_packages('src'),
       package_dir={'': 'src'},
       include_package_data=True,
       zip_safe=True,
       install_requires=install_requires,
-      entry_points="""
+      entry_points='''
       [console_scripts]
-      po-to-xls = lingua.xlsconvert:ConvertPoXls
-      xls-to-po = lingua.xlsconvert:ConvertXlsPo
-      polint = lingua.polint:main
-
-      [babel.extractors]
-      lingua_python = lingua.extractors.python:extract_python
-      lingua_xml = lingua.extractors.xml:extract_xml
-      lingua_zcml = lingua.extractors.zcml:extract_zcml
-      """
+      po-to-xls = poxls.xlsconvert:ConvertPoXls
+      xls-to-po = poxls.xlsconvert:ConvertXlsPo
+      '''
       )
