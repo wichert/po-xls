@@ -1,4 +1,3 @@
-import argparse
 try:
     from collections import OrderedDict
 except ImportError:
@@ -7,6 +6,7 @@ import os
 import shutil
 import sys
 import time
+import click
 import polib
 import xlrd
 
@@ -30,24 +30,19 @@ def po_timestamp(filename):
         time.strftime('%H%M', time.gmtime(abs(offset))))
 
 
-def main():
-    parser = argparse.ArgumentParser(
-            description='Convert a XLS(X) file to a .PO file')
-
-    parser.add_argument('locale', metavar='<locale>',
-            help='Locale to process')
-    parser.add_argument('input_file', metavar='<xls file>',
-            help='Input XLS file')
-    parser.add_argument('output_file', metavar='<po file>',
-            help='PO file to update')
-    options = parser.parse_args()
-
-    book = xlrd.open_workbook(filename=options.input_file, logfile=sys.stderr)
+@click.command(help=u'Convert a XLS(X) file to a .PO file')
+@click.argument('locale', required=True)
+@click.argument('input_file',
+        type=click.Path(exists=True, readable=True),
+        required=True)
+@click.argument('output_file', required=True)
+def main(locale, input_file, output_file):
+    book = xlrd.open_workbook(filename=input_file, logfile=sys.stderr)
     catalog = polib.POFile()
-    catalog.header = u'This file was generated from %s' % options.input_file
+    catalog.header = u'This file was generated from %s' % input_file
     catalog.metata_is_fuzzy = True
     catalog.metadata = OrderedDict()
-    catalog.metadata['PO-Revision-Date'] = po_timestamp(options.input_file)
+    catalog.metadata['PO-Revision-Date'] = po_timestamp(input_file)
     catalog.metadata['Content-Type'] = 'text/plain; charset=UTF-8'
     catalog.metadata['Content-Transfer-Encoding'] = '8bit'
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
@@ -58,10 +53,14 @@ def main():
         msgctxt_column = headers.get('Message context')
         msgid_column = headers.get('Message id')
         tcomment_column = headers.get('Translator comment')
-        msgstr_column = headers.get(options.locale)
+        msgstr_column = headers.get(locale)
         if not msgid_column:
+            click.echo(u'Could not find a "Message context" column in sheet %s' %
+                    sheet.name, err=True)
             continue
         if not msgstr_column:
+            click.echo(u'Could not find a "%s" column in sheet %s' %
+                    (locale, sheet.name), err=True)
             continue
 
         for row in range(1, sheet.nrows):
@@ -75,6 +74,14 @@ def main():
                     entry.tcomment = row[tcomment_column]
                 catalog.append(entry)
             except IndexError:
-                print >> sys.stderr, 'Row %s is too short' % row
+                click.echo('Row %s is too short' % row, err=True)
 
-    replace_catalog(options.output_file, catalog)
+    if not catalog:
+        click.echo('No messages found, aborting', err=True)
+        sys.exit(1)
+
+    replace_catalog(output_file, catalog)
+
+
+if __name__ == '__main__':
+    main()

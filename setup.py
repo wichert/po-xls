@@ -4,6 +4,7 @@ import sys
 version = '1.0.0'
 
 install_requires=[
+        'click',
         'polib',
         'xlrd',
         'xlwt',
@@ -40,7 +41,7 @@ setup(name='poxls',
       install_requires=install_requires,
       entry_points='''
       [console_scripts]
-      po-to-xls = poxls.xlsconvert:ConvertPoXls
+      po-to-xls = poxls.po_to_xls:main
       xls-to-po = poxls.xls_to_po:main
       '''
       )
