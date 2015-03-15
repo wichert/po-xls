@@ -5,3 +5,5 @@ Changelog
 ----------------------
 
 - Split po-excel conversion tools out from `lingua <https://github.com/wichert/lingua>`_.
+
+- Simplify CLI interfaces.
