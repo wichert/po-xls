@@ -3,7 +3,6 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 import os
-import shutil
 import sys
 import time
 import click
@@ -12,14 +11,13 @@ import xlrd
 from . import ColumnHeaders
 
 
-def replace_catalog(filename, catalog):
-    tmpfile = filename + '~'
-    catalog.save(tmpfile)
-    if sys.platform in ['win32', 'cygwin']:
-        # Windows does not support atomic renames.
-        shutil.move(tmpfile, filename)
-    else:
-        os.rename(tmpfile, filename)
+def save(output_file, catalog):
+    """Save catalog to a PO file.
+
+    This is mostly a stripped down copy of POFile.save so we can save the
+    catalog to a file safely created by click.
+    """
+    output_file.write(unicode(catalog))
 
 
 def po_timestamp(filename):
@@ -36,7 +34,7 @@ def po_timestamp(filename):
 @click.argument('input_file',
         type=click.Path(exists=True, readable=True),
         required=True)
-@click.argument('output_file', required=True)
+@click.argument('output_file', type=click.File('w', encoding='utf-8'), required=True)
 def main(locale, input_file, output_file):
     book = xlrd.open_workbook(filename=input_file, logfile=sys.stderr)
     catalog = polib.POFile()
@@ -82,7 +80,7 @@ def main(locale, input_file, output_file):
         click.echo('No messages found, aborting', err=True)
         sys.exit(1)
 
-    replace_catalog(output_file, catalog)
+    save(output_file, catalog)
 
 
 if __name__ == '__main__':

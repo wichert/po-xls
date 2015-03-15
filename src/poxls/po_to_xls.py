@@ -1,12 +1,8 @@
-import re
 import click
 import polib
 import xlrd
 import xlwt
 from . import ColumnHeaders
-
-
-VARIABLE_RE = re.compile(r"\${(.*?)}")
 
 
 def to_base26(value):
@@ -63,7 +59,7 @@ def find_msg(sheet, row, catalog):
 @click.command(help='Convert .PO files to an XLSX file')
 @click.option('--comments', multiple=True,
         type=click.Choice(['translator', 'extracted', 'reference', 'all']))
-@click.option('-p', nargs=2, multiple=True, required=True, 
+@click.option('-p', nargs=2, multiple=True, required=True,
     help=u'Locale and filename of po-file to process')
 @click.argument('output_file', type=click.File('wb'), required=True)
 def main(comments, p, output_file):
