@@ -93,7 +93,6 @@ def main(comments, output, catalogs):
     "Language" key in the PO metadata, falling back to the filename. You
     can also specify the locale manually by adding prefixing the filename
     with "<locale>:". For example: "nl:locales/nl/mydomain.po".
-
     """
     has_msgctxt = False
     for (locale, catalog) in catalogs:
