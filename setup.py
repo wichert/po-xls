@@ -41,6 +41,6 @@ setup(name='poxls',
       entry_points='''
       [console_scripts]
       po-to-xls = poxls.xlsconvert:ConvertPoXls
-      xls-to-po = poxls.xlsconvert:ConvertXlsPo
+      xls-to-po = poxls.xls_to_po:main
       '''
       )
