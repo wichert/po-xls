@@ -1,3 +1,4 @@
+import os
 import click
 import polib
 import xlrd
@@ -56,24 +57,52 @@ def find_msg(sheet, row, catalog):
     return msg
 
 
-@click.command(help='Convert .PO files to an XLSX file')
-@click.option('--comments', multiple=True,
-        type=click.Choice(['translator', 'extracted', 'reference', 'all']))
-@click.option('-p', nargs=2, multiple=True, required=True,
-    help=u'Locale and filename of po-file to process')
-@click.argument('output_file', type=click.File('wb'), required=True)
-def main(comments, p, output_file):
+class CatalogFile(click.Path):
+    def __init__(self):
+        super(CatalogFile, self).__init__(exists=True, dir_okay=False,
+                readable=True)
+
+    def convert(self, value, param, ctx):
+        if not os.path.exists(value) and ':' in value:
+            # The user passed a <locale>:<path> value
+            (locale, path) = value.split(':', 1)
+            path = os.path.expanduser(path)
+            real_path = super(CatalogFile, self).convert(path, param, ctx)
+            return (locale, polib.pofile(real_path))
+        else:
+            real_path = super(CatalogFile, self).convert(value, param, ctx)
+            catalog = polib.pofile(real_path)
+            locale = catalog.metadata.get('Language')
+            if not locale:
+                locale = os.path.splitext(os.path.basename(real_path))[0]
+            return (locale, catalog)
+
+
+@click.command()
+@click.option('-c', '--comments', multiple=True,
+        type=click.Choice(['translator', 'extracted', 'reference', 'all']),
+        help='Comments to include in the spreadsheet')
+@click.option('-o', '--output', type=click.File('wb'), default='messages.xlsx',
+        help='Output file', show_default=True)
+@click.argument('catalogs', metavar='CATALOG', nargs=-1, required=True, type=CatalogFile())
+def main(comments, output, catalogs):
+    """
+    Convert .PO files to an XLSX file.
+
+    po-to-xls tries to guess the locale for PO files by looking at the
+    "Language" key in the PO metadata, falling back to the filename. You
+    can also specify the locale manually by adding prefixing the filename
+    with "<locale>:". For example: "nl:locales/nl/mydomain.po".
+
+    """
     has_msgctxt = False
-    catalogs = []
-    for (locale, path) in p:
-        input = path
-        catalogs.append((locale, polib.pofile(input)))
-        has_msgctxt = has_msgctxt or any(m.msgctxt for m in catalogs[-1][1])
+    for (locale, catalog) in catalogs:
+        has_msgctxt = has_msgctxt or any(m.msgctxt for m in catalog)
 
     messages = []
     seen = set()
-    for catalog in catalogs:
-        for msg in catalog[1]:
+    for (_, catalog) in catalogs:
+        for msg in catalog:
             if not msg.msgid or msg.obsolete:
                 continue
             if msg.msgid not in seen:
@@ -152,7 +181,7 @@ def main(comments, p, output_file):
                 column += 1
             row += 1
 
-    book.save(output_file)
+    book.save(output)
 
 
 if __name__ == '__main__':

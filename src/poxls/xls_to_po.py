@@ -29,13 +29,16 @@ def po_timestamp(filename):
         time.strftime('%H%M', time.gmtime(abs(offset))))
 
 
-@click.command(help=u'Convert a XLS(X) file to a .PO file')
+@click.command()
 @click.argument('locale', required=True)
 @click.argument('input_file',
         type=click.Path(exists=True, readable=True),
         required=True)
 @click.argument('output_file', type=click.File('w', encoding='utf-8'), required=True)
 def main(locale, input_file, output_file):
+    """
+    Convert a XLS(X) file to a .PO file
+    """
     book = xlrd.open_workbook(filename=input_file, logfile=sys.stderr)
     catalog = polib.POFile()
     catalog.header = u'This file was generated from %s' % input_file
