@@ -164,7 +164,7 @@ def ConvertPoXls():
     parser = argparse.ArgumentParser(
             description='Convert Po files for a domain to an Excel file.')
     parser.add_argument('--comments',
-            action=CommentAction, default='',
+            action=CommentAction, default='extracted',
             help='Comments to include in xls file. This is a comma separated '
                  'list of "translator", "extracted", "reference" or "all".')
     parser.add_argument('-p',
