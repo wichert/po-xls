@@ -56,8 +56,8 @@ def main(locale, input_file, output_file):
         tcomment_column = headers.get(ColumnHeaders.tcomment)
         msgstr_column = headers.get(locale)
         if not msgid_column:
-            click.echo(u'Could not find a "Message context" column in sheet %s' %
-                    sheet.name, err=True)
+            click.echo(u'Could not find a "%s" column in sheet %s' %
+                    (ColumnHeaders.msgid, sheet.name), err=True)
             continue
         if not msgstr_column:
             click.echo(u'Could not find a "%s" column in sheet %s' %
