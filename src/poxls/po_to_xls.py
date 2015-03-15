@@ -3,6 +3,7 @@ import click
 import polib
 import xlrd
 import xlwt
+from . import ColumnHeaders
 
 
 VARIABLE_RE = re.compile(r"\${(.*?)}")
@@ -66,10 +67,12 @@ def find_msg(sheet, row, catalog):
     help=u'Locale and filename of po-file to process')
 @click.argument('output_file', type=click.File('wb'), required=True)
 def main(comments, p, output_file):
+    has_msgctxt = False
     catalogs = []
     for (locale, path) in p:
         input = path
         catalogs.append((locale, polib.pofile(input)))
+        has_msgctxt = has_msgctxt or any(m.msgctxt for m in catalogs[-1][1])
 
     messages = []
     seen = set()
@@ -87,20 +90,34 @@ def main(comments, p, output_file):
     italic_style.font.italic = True
     italic_style.font.bold = True
     sheet = book.add_sheet(u'Translations')
+
     column = 0
-    sheet.write(0, column, u'Message context')
+    msgctxt_column = msgid_column = occurrences_column = comment_column = tcomment_column = None
+    if has_msgctxt:
+        msgctxt_column = column
+        sheet.write(0, column, ColumnHeaders.msgctxt)
+        column += 1
+
+    msgid_column = column
+    sheet.write(0, column, ColumnHeaders.msgid)
     column += 1
-    sheet.write(0, column, u'Message id')
-    column += 1
+
     if 'reference' in comments or 'all' in comments:
-        sheet.write(0, column, u'References')
+        occurrences_column = column
+        sheet.write(0, column, ColumnHeaders.occurrences)
         column += 1
+
     if 'extracted' in comments or 'all' in comments:
-        sheet.write(0, column, u'Source comment')
+        comment_column = column
+        sheet.write(0, column, ColumnHeaders.comment)
         column += 1
+
     if 'translator' in comments or 'all' in comments:
-        sheet.write(0, column, u'Translator comment')
+        tcomment_column = column
+        sheet.write(0, column, ColumnHeaders.tcomment)
         column += 1
+
+    msgstr_column = column
     for (i, cat) in enumerate(catalogs):
         sheet.write(0, column, cat[0])
         column += 1
@@ -108,13 +125,11 @@ def main(comments, p, output_file):
     row = 1
     ref_catalog = catalogs[0][1]
     for (msgid, msgctxt, message) in messages:
-        column = 0
-        sheet.write(row, column, msgctxt)
-        column += 1
-        sheet.write(row, column, msgid)
-        column += 1
+        if msgctxt_column is not None:
+            sheet.write(row, msgctxt_column, msgctxt)
+        sheet.write(row, msgid_column, msgid)
         msg = ref_catalog.find(msgid)
-        if 'reference' in comments or 'all' in comments:
+        if occurrences_column is not None:
             o = []
             if msg is not None:
                 for (entry, lineno) in msg.occurrences:
@@ -122,17 +137,14 @@ def main(comments, p, output_file):
                         o.append(u'%s:%s' % (entry, lineno))
                     else:
                         o.append(entry)
-            sheet.write(row, column, u', '.join(o))
-            column += 1
-        if 'extracted' in comments or 'all' in comments:
+            sheet.write(row, occurrences_column, u', '.join(o))
+        if comment_column is not None:
             if msg is not None:
-                sheet.write(row, column, msg.comment)
-            column += 1
-        if 'translator' in comments or 'all' in comments:
+                sheet.write(row, comment_column, msg.comment)
+        if tcomment_column is not None:
             if msg is not None:
-                sheet.write(row, column, msg.tcomment)
-            column += 1
-        for (i, cat) in enumerate(catalogs):
+                sheet.write(row, tcomment_column, msg.tcomment)
+        for (column, cat) in enumerate(catalogs, msgstr_column):
             cat = cat[1]
             msg = cat.find(msgid)
             if msg is not None:

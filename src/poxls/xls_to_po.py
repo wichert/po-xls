@@ -9,6 +9,7 @@ import time
 import click
 import polib
 import xlrd
+from . import ColumnHeaders
 
 
 def replace_catalog(filename, catalog):
@@ -50,9 +51,9 @@ def main(locale, input_file, output_file):
     for sheet in book.sheets():
         headers = [c.value for c in sheet.row(0)]
         headers = dict((b, a) for (a, b) in enumerate(headers))
-        msgctxt_column = headers.get('Message context')
-        msgid_column = headers.get('Message id')
-        tcomment_column = headers.get('Translator comment')
+        msgctxt_column = headers.get(ColumnHeaders.msgctxt)
+        msgid_column = headers.get(ColumnHeaders.msgid)
+        tcomment_column = headers.get(ColumnHeaders.tcomment)
         msgstr_column = headers.get(locale)
         if not msgid_column:
             click.echo(u'Could not find a "Message context" column in sheet %s' %
@@ -67,9 +68,10 @@ def main(locale, input_file, output_file):
             row = [c.value for c in sheet.row(row)]
             try:
                 entry = polib.POEntry(
-                        msgctxt=row[msgctxt_column] if msgctxt_column else None,
                         msgid=row[msgid_column],
                         msgstr=row[msgstr_column])
+                if msgctxt_column is not None and row[msgctxt_column]:
+                    entry.msgctxt = row[msgctxt_column]
                 if tcomment_column:
                     entry.tcomment = row[tcomment_column]
                 catalog.append(entry)
