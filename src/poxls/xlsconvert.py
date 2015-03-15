@@ -186,7 +186,7 @@ def ConvertPoXls():
             if not msg.msgid or msg.obsolete:
                 continue
             if msg.msgid not in seen:
-                messages.append((msg.msgid, msg))
+                messages.append((msg.msgid, msg.msgctxt, msg))
                 seen.add(msg.msgid)
 
     book = xlwt.Workbook(encoding='utf-8')
@@ -196,6 +196,8 @@ def ConvertPoXls():
     italic_style.font.bold = True
     sheet = book.add_sheet(u'Translations')
     column = 0
+    sheet.write(0, column, u'Message context')
+    column += 1
     sheet.write(0, column, u'Message id')
     column += 1
     if 'reference' in options.comments:
@@ -213,9 +215,11 @@ def ConvertPoXls():
 
     row = 1
     ref_catalog = catalogs[0][1]
-    for (msgid, message) in messages:
+    for (msgid, msgctxt, message) in messages:
         column = 0
-        sheet.write(row, 0, msgid)
+        sheet.write(row, column, msgctxt)
+        column += 1
+        sheet.write(row, column, msgid)
         column += 1
         msg = ref_catalog.find(msgid)
         if 'reference' in options.comments:
