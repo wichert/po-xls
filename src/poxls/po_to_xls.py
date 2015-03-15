@@ -120,36 +120,37 @@ def main(comments, p, output_file):
 
     row = 1
     ref_catalog = catalogs[0][1]
-    for (msgid, msgctxt, message) in messages:
-        if msgctxt_column is not None:
-            sheet.write(row, msgctxt_column, msgctxt)
-        sheet.write(row, msgid_column, msgid)
-        msg = ref_catalog.find(msgid)
-        if occurrences_column is not None:
-            o = []
-            if msg is not None:
-                for (entry, lineno) in msg.occurrences:
-                    if lineno:
-                        o.append(u'%s:%s' % (entry, lineno))
+    with click.progressbar(messages, label='Writing catalog to sheet') as todo:
+        for (msgid, msgctxt, message) in todo:
+            if msgctxt_column is not None:
+                sheet.write(row, msgctxt_column, msgctxt)
+            sheet.write(row, msgid_column, msgid)
+            msg = ref_catalog.find(msgid)
+            if occurrences_column is not None:
+                o = []
+                if msg is not None:
+                    for (entry, lineno) in msg.occurrences:
+                        if lineno:
+                            o.append(u'%s:%s' % (entry, lineno))
+                        else:
+                            o.append(entry)
+                sheet.write(row, occurrences_column, u', '.join(o))
+            if comment_column is not None:
+                if msg is not None:
+                    sheet.write(row, comment_column, msg.comment)
+            if tcomment_column is not None:
+                if msg is not None:
+                    sheet.write(row, tcomment_column, msg.tcomment)
+            for (column, cat) in enumerate(catalogs, msgstr_column):
+                cat = cat[1]
+                msg = cat.find(msgid)
+                if msg is not None:
+                    if 'fuzzy' in msg.flags:
+                        sheet.write(row, column, msg.msgstr, italic_style)
                     else:
-                        o.append(entry)
-            sheet.write(row, occurrences_column, u', '.join(o))
-        if comment_column is not None:
-            if msg is not None:
-                sheet.write(row, comment_column, msg.comment)
-        if tcomment_column is not None:
-            if msg is not None:
-                sheet.write(row, tcomment_column, msg.tcomment)
-        for (column, cat) in enumerate(catalogs, msgstr_column):
-            cat = cat[1]
-            msg = cat.find(msgid)
-            if msg is not None:
-                if 'fuzzy' in msg.flags:
-                    sheet.write(row, column, msg.msgstr, italic_style)
-                else:
-                    sheet.write(row, column, msg.msgstr)
-            column += 1
-        row += 1
+                        sheet.write(row, column, msg.msgstr)
+                column += 1
+            row += 1
 
     book.save(output_file)
 

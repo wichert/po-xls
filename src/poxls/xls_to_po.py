@@ -47,6 +47,7 @@ def main(locale, input_file, output_file):
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
     for sheet in book.sheets():
+        click.echo('Processing sheet %s' % sheet.name)
         headers = [c.value for c in sheet.row(0)]
         headers = dict((b, a) for (a, b) in enumerate(headers))
         msgctxt_column = headers.get(ColumnHeaders.msgctxt)
@@ -54,27 +55,27 @@ def main(locale, input_file, output_file):
         tcomment_column = headers.get(ColumnHeaders.tcomment)
         msgstr_column = headers.get(locale)
         if not msgid_column:
-            click.echo(u'Could not find a "%s" column in sheet %s' %
-                    (ColumnHeaders.msgid, sheet.name), err=True)
+            click.echo(u'Could not find a "%s" column' % ColumnHeaders.msgid,
+                    err=True)
             continue
         if not msgstr_column:
-            click.echo(u'Could not find a "%s" column in sheet %s' %
-                    (locale, sheet.name), err=True)
+            click.echo(u'Could not find a "%s" column' % locale, err=True)
             continue
 
-        for row in range(1, sheet.nrows):
-            row = [c.value for c in sheet.row(row)]
-            try:
-                entry = polib.POEntry(
-                        msgid=row[msgid_column],
-                        msgstr=row[msgstr_column])
-                if msgctxt_column is not None and row[msgctxt_column]:
-                    entry.msgctxt = row[msgctxt_column]
-                if tcomment_column:
-                    entry.tcomment = row[tcomment_column]
-                catalog.append(entry)
-            except IndexError:
-                click.echo('Row %s is too short' % row, err=True)
+        with click.progressbar(range(1, sheet.nrows), label='Extracting messages') as rows:
+            for row in rows:
+                row = [c.value for c in sheet.row(row)]
+                try:
+                    entry = polib.POEntry(
+                            msgid=row[msgid_column],
+                            msgstr=row[msgstr_column])
+                    if msgctxt_column is not None and row[msgctxt_column]:
+                        entry.msgctxt = row[msgctxt_column]
+                    if tcomment_column:
+                        entry.tcomment = row[tcomment_column]
+                    catalog.append(entry)
+                except IndexError:
+                    click.echo('Row %s is too short' % row, err=True)
 
     if not catalog:
         click.echo('No messages found, aborting', err=True)
