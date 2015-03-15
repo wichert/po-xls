@@ -22,6 +22,8 @@ def replace_catalog(filename, catalog):
 
 
 def to_base26(value):
+    """Convert a column number to the base-26 notation used by spreadsheets.
+    """
     if not value:
         return 'A'
     output = []
@@ -35,10 +37,18 @@ def to_base26(value):
 
 
 def cell_id(row, column):
+    """Return the cell coordinate in spread-sheet notation.
+
+    This convers a row and column number into a standard cell coordinate
+    such as F6.
+    """
+
     return '%s%d' % (to_base26(column), row + 1)
 
 
 def cell_string(sheet, row, col):
+    """Get the text contents of a spreadsheet cell.
+    """
     cell = sheet.cell(row, col)
     if cell.ctype != xlrd.XL_CELL_TEXT:
         return None
