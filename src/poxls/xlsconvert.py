@@ -1,8 +1,13 @@
 import argparse
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 import os.path
 import re
 import shutil
 import sys
+import time
 import xlrd
 import xlwt
 import polib
@@ -56,13 +61,14 @@ def cell_string(sheet, row, col):
 
 
 def find_msg(sheet, row, catalog):
-    msgid = cell_string(sheet, row, 0)
+    msgctxt = cell_string(sheet, row, 0)
+    msgid = cell_string(sheet, row, 1)
     if not msgid:
         print >> sys.stderr, ('Missing message id in cell %s:%s' %
-                (sheet.name, cell_id(row, 0)))
+                (sheet.name, cell_id(row, 1)))
         return None
 
-    msg = catalog.find(msgid)
+    msg = catalog.find(msgid, msgctxt or False)
     if msg is None:
         print >> sys.stderr, \
                 ('Can not find translation for cell %s:%s in PO file.' %
@@ -72,40 +78,18 @@ def find_msg(sheet, row, catalog):
     return msg
 
 
-def getVariables(text):
-    variables = set(VARIABLE_RE.findall(text))
-    if 'newline' in variables:
-        variables.remove('newline')
-    return variables
-
-
-def update_message(msg, sheet, row, column):
-    if msg.comment.startswith(u'Default:'):
-        canonical = msg.comment[9:]
-    else:
-        canonical = msg.msgid
-
-    translation = cell_string(sheet, row, column)
-    if not translation:
-        return False
-
-    fuzzy = False
-    if getVariables(canonical) != getVariables(translation):
-        print >> sys.stderr, \
-                ('Bad translation in cell %s:%s: different variables used.' %
-                (sheet.name, cell_id(row, column)))
-        fuzzy = True
-
-    msg.msgstr = translation
-    if fuzzy and 'fuzzy' not in msg.flags:
-        msg.flags.append('fuzzy')
-    elif not fuzzy and 'fuzzy' in msg.flags:
-        msg.flags.remove('fuzzy')
+def po_timestamp(filename):
+    local = time.localtime(os.stat(filename).st_mtime)
+    offset = -(time.altzone if local.tm_isdst else time.timezone)
+    return '%s%s%s' % (
+        time.strftime('%Y-%m-%d %H:%M', local),
+        '-' if offset < 0 else '+',
+        time.strftime('%H%M', time.gmtime(abs(offset))))
 
 
 def ConvertXlsPo():
     parser = argparse.ArgumentParser(
-            description='Merge translation from XLS file to a .PO file')
+            description='Convert a XLS(X) file to a .PO file')
 
     parser.add_argument('locale', metavar='<locale>',
             help='Locale to process')
@@ -116,30 +100,40 @@ def ConvertXlsPo():
     options = parser.parse_args()
 
     book = xlrd.open_workbook(filename=options.input_file, logfile=sys.stderr)
-    catalog = polib.pofile(options.output_file)
+    catalog = polib.POFile()
+    catalog.header = u'This file was generated from %s' % options.input_file
+    catalog.metata_is_fuzzy = True
+    catalog.metadata = OrderedDict()
+    catalog.metadata['PO-Revision-Date'] = po_timestamp(options.input_file)
+    catalog.metadata['Content-Type'] = 'text/plain; charset=UTF-8'
+    catalog.metadata['Content-Transfer-Encoding'] = '8bit'
+    catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
     found_locale = False
     for sheet in book.sheets():
-        for col in range(1, sheet.ncols):
-            context = cell_string(sheet, 0, col)
-            if context != u'Translator comment' and context != options.locale:
-                continue
+        headers = [c.value for c in sheet.row(0)]
+        headers = dict((b, a) for (a, b) in enumerate(headers))
+        msgctxt_column = headers.get('Message context')
+        msgid_column = headers.get('Message id')
+        tcomment_column = headers.get('Translator comment')
+        msgstr_column = headers.get(options.locale)
+        if not msgid_column:
+            continue
+        if not msgstr_column:
+            continue
 
-            for row in range(1, sheet.nrows):
-                msg = find_msg(sheet, row, catalog)
-                if msg is None:
-                    continue
-
-                if context == u'Translator comment':
-                    msg.tcomment = cell_string(sheet, row, col) or u''
-                else:
-                    found_locale = True
-                    update_message(msg, sheet, row, col)
-
-    if not found_locale:
-        print >> sys.stderr, 'No translations found for locale %s' % \
-                options.locale
-        sys.exit(1)
+        for row in range(1, sheet.nrows):
+            row = [c.value for c in sheet.row(row)]
+            try:
+                entry = polib.POEntry(
+                        msgctxt=row[msgctxt_column] if msgctxt_column else None,
+                        msgid=row[msgid_column],
+                        msgstr=row[msgstr_column])
+                if tcomment_column:
+                    entry.tcomment = row[tcomment_column]
+                catalog.append(entry)
+            except IndexError:
+                print >> sys.stderr, 'Row %s is too short' % row
 
     replace_catalog(options.output_file, catalog)
 
