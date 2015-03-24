@@ -39,7 +39,7 @@ def main(locale, input_file, output_file):
     """
     Convert a XLS(X) file to a .PO file
     """
-    book = openpyxl.load_workbook(input_file, read_only=True)
+    book = openpyxl.load_workbook(input_file)
     catalog = polib.POFile()
     catalog.header = u'This file was generated from %s' % input_file
     catalog.metata_is_fuzzy = True
@@ -50,12 +50,11 @@ def main(locale, input_file, output_file):
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
     for sheet in book.worksheets:
-        click.echo('Processing sheet %s' % sheet.title)
-        try:
-            row_iterator = sheet.iter_rows()
-            headers = [c.value for c in row_iterator.next()]
-        except StopIteration:  # No header present
+        if sheet.max_row < 2:
             continue
+        click.echo('Processing sheet %s' % sheet.title)
+        row_iterator = sheet.iter_rows()
+        headers = [c.value for c in row_iterator.next()]
         headers = dict((b, a) for (a, b) in enumerate(headers))
         msgctxt_column = headers.get(ColumnHeaders.msgctxt)
         msgid_column = headers.get(ColumnHeaders.msgid)
@@ -69,7 +68,7 @@ def main(locale, input_file, output_file):
             click.echo(u'Could not find a "%s" column' % locale, err=True)
             continue
 
-        with click.progressbar(row_iterator, length=sheet.max_row - 1 if sheet.max_row else None,
+        with click.progressbar(row_iterator, length=sheet.max_row - 1,
                 label='Extracting messages') as rows:
             for row in rows:
                 row = [c.value for c in row]
