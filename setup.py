@@ -6,7 +6,6 @@ version = '1.1.0.dev0'
 install_requires=[
         'click',
         'polib',
-        'xlrd',
         'openpyxl',
         ]
 if sys.version_info<(2,7):
