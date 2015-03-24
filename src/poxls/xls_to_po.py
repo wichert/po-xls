@@ -7,7 +7,7 @@ import sys
 import time
 import click
 import polib
-import xlrd
+import openpyxl
 from . import ColumnHeaders
 
 
@@ -39,7 +39,7 @@ def main(locale, input_file, output_file):
     """
     Convert a XLS(X) file to a .PO file
     """
-    book = xlrd.open_workbook(filename=input_file, logfile=sys.stderr)
+    book = openpyxl.load_workbook(input_file, read_only=True)
     catalog = polib.POFile()
     catalog.header = u'This file was generated from %s' % input_file
     catalog.metata_is_fuzzy = True
@@ -49,25 +49,30 @@ def main(locale, input_file, output_file):
     catalog.metadata['Content-Transfer-Encoding'] = '8bit'
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
-    for sheet in book.sheets():
-        click.echo('Processing sheet %s' % sheet.name)
-        headers = [c.value for c in sheet.row(0)]
+    for sheet in book.worksheets:
+        click.echo('Processing sheet %s' % sheet.title)
+        try:
+            row_iterator = sheet.iter_rows()
+            headers = [c.value for c in row_iterator.next()]
+        except StopIteration:  # No header present
+            continue
         headers = dict((b, a) for (a, b) in enumerate(headers))
         msgctxt_column = headers.get(ColumnHeaders.msgctxt)
         msgid_column = headers.get(ColumnHeaders.msgid)
         tcomment_column = headers.get(ColumnHeaders.tcomment)
         msgstr_column = headers.get(locale)
-        if not msgid_column:
+        if msgid_column is None:
             click.echo(u'Could not find a "%s" column' % ColumnHeaders.msgid,
                     err=True)
             continue
-        if not msgstr_column:
+        if msgstr_column is None:
             click.echo(u'Could not find a "%s" column' % locale, err=True)
             continue
 
-        with click.progressbar(range(1, sheet.nrows), label='Extracting messages') as rows:
+        with click.progressbar(row_iterator, length=sheet.max_row - 1 if sheet.max_row else None,
+                label='Extracting messages') as rows:
             for row in rows:
-                row = [c.value for c in sheet.row(row)]
+                row = [c.value for c in row]
                 try:
                     entry = polib.POEntry(
                             msgid=row[msgid_column],

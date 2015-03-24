@@ -7,7 +7,7 @@ install_requires=[
         'click',
         'polib',
         'xlrd',
-        'xlwt',
+        'openpyxl',
         ]
 if sys.version_info<(2,7):
     install_requires.append('argparse')
