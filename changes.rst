@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.0 - Unreleased
+1.1.0 - 25 March 2015
 ---------------------
 
 - Use `openpyxl <http://openpyxl.readthedocs.org/>`_ instead of xlrd/xlwt. This
