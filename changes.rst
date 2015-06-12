@@ -6,6 +6,8 @@ Changelog
 
 - Fix ReST syntax error in package description.
 
+- Skip rows without a message id.
+
 
 1.1.0 - 25 March 2015
 ---------------------

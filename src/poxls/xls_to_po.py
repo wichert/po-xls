@@ -72,6 +72,8 @@ def main(locale, input_file, output_file):
                 label='Extracting messages') as rows:
             for row in rows:
                 row = [c.value for c in row]
+                if not row[msgid_column]:
+                    continue
                 try:
                     entry = polib.POEntry(
                             msgid=row[msgid_column],
