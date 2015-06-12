@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.1 - Unreleased
+1.2.0 - June 12, 2015
 ---------------------
 
 - Fix ReST syntax error in package description.

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-version = '1.1.1.dev0'
+version = '1.2.0'
 
 install_requires=[
         'click',
