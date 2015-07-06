@@ -43,7 +43,7 @@ traditional Chinese and Dutch translations.
 ``po-to-xls`` will guess the locale for a PO file by looking at the `Language`
 key in the file metadata, falling back to the filename of no language informatino
 is specified. You can override this by explicitly specifying the locale on the
-commandline. For example:
+commandline. For example::
 
     po-to-xs nl:locales/nl/LC_MESSAGES/mydomain.po
 
