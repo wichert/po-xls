@@ -77,7 +77,7 @@ def main(locale, input_file, output_file):
                 try:
                     entry = polib.POEntry(
                             msgid=row[msgid_column],
-                            msgstr=row[msgstr_column])
+                            msgstr=row[msgstr_column] or '')
                     if msgctxt_column is not None and row[msgctxt_column]:
                         entry.msgctxt = row[msgctxt_column]
                     if tcomment_column:

@@ -6,6 +6,8 @@ Changelog
 
 - Fix another ReST syntax error in package description.
 
+- Correcty handle rows with a missing translation.
+
 
 1.2.0 - June 12, 2015
 ---------------------
