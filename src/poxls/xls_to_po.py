@@ -9,6 +9,10 @@ import click
 import polib
 import openpyxl
 from . import ColumnHeaders
+try:
+    unicode
+except NameError:
+    unicode = str
 
 
 def save(output_file, catalog):
@@ -54,7 +58,7 @@ def main(locale, input_file, output_file):
             continue
         click.echo('Processing sheet %s' % sheet.title)
         row_iterator = sheet.iter_rows()
-        headers = [c.value for c in row_iterator.next()]
+        headers = [c.value for c in next(row_iterator)]
         headers = dict((b, a) for (a, b) in enumerate(headers))
         msgctxt_column = headers.get(ColumnHeaders.msgctxt)
         msgid_column = headers.get(ColumnHeaders.msgid)

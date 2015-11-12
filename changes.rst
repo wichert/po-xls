@@ -4,7 +4,7 @@ Changelog
 1.4.0 - Unreleased
 --------------------
 
-- ...
+- Fix Python 3 compatibility.
 
 
 1.3.0 - July 6, 2015
