@@ -60,7 +60,7 @@ def main(comments, output, catalogs):
                 messages.append((msg.msgid, msg.msgctxt, msg))
                 seen.add(msg.msgid)
 
-    book = openpyxl.Workbook(guess_types=True, write_only=True)
+    book = openpyxl.Workbook(write_only=True)
     sheet = book.create_sheet(title=u'Translations')
 
     row = []
