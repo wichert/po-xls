@@ -1,8 +1,10 @@
 Changelog
 =========
 
-1.4.0 - Unreleased
---------------------
+1.4.0 - December 23, 2016
+-------------------------
+
+- Fix compatibility with current OpenPyxl releases.
 
 - Fix Python 3 compatibility.
 
