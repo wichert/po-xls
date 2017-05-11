@@ -50,6 +50,10 @@ commandline. For example::
 This will read ``locales/nl/LC_MESSAGES/mydomain.po`` and treat it as Dutch
 (``nl`` locale).
 
+You can also use the ``-c`` or ``--comments`` option with one of those choices:
+``translator``, ``extracted``, ``reference``, ``all`` to add more column in the
+output.
+
 
 Spreadshseet to catalog
 -----------------------
