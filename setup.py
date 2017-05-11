@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys
 
-version = '1.4.0'
+version = '1.4.1'
 
 install_requires=[
         'click',
@@ -25,6 +25,7 @@ setup(name='poxls',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
           'Intended Audience :: Developers',
           'Intended Audience :: End Users/Desktop',
           ],
