@@ -107,7 +107,7 @@ def main(comments, output, catalogs):
                 row.append(msg.tcomment if msg is not None else None)
             for cat in catalogs:
                 cat = cat[1]
-                msg = cat.find(msgid)
+                msg = cat.find(msgid, msgctxt=msgctxt)
                 if msg is None:
                     row.append(None)
                 elif 'fuzzy' in msg.flags:

@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.4.2 - May 11, 2017
+-------------------------
+
+- Fix another problem with message context handling in po-to-xls.
+
+
 1.4.1 - May 11, 2017
 -------------------------
 
