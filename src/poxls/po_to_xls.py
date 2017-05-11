@@ -56,9 +56,9 @@ def main(comments, output, catalogs):
         for msg in catalog:
             if not msg.msgid or msg.obsolete:
                 continue
-            if msg.msgid not in seen:
+            if (msg.msgid, msg.msgctxt) not in seen:
                 messages.append((msg.msgid, msg.msgctxt, msg))
-                seen.add(msg.msgid)
+                seen.add((msg.msgid, msg.msgctxt))
 
     book = openpyxl.Workbook(write_only=True)
     sheet = book.create_sheet(title=u'Translations')
@@ -91,7 +91,7 @@ def main(comments, output, catalogs):
             if has_msgctxt_column is not None:
                 row.append(msgctxt)
             row.append(msgid)
-            msg = ref_catalog.find(msgid)
+            msg = ref_catalog.find(msgid, msgctxt=msgctxt)
             if has_occurrences_column:
                 o = []
                 if msg is not None:
