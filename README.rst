@@ -41,7 +41,7 @@ This will generate a ``texts.xlsx`` file with all simplified Chinese,
 traditional Chinese and Dutch translations.
 
 ``po-to-xls`` will guess the locale for a PO file by looking at the `Language`
-key in the file metadata, falling back to the filename of no language informatino
+key in the file metadata, falling back to the filename if no language information
 is specified. You can override this by explicitly specifying the locale on the
 commandline. For example::
 
