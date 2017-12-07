@@ -3,7 +3,11 @@ import click
 import polib
 import openpyxl
 from openpyxl.styles import Font
-from openpyxl.writer.dump_worksheet import WriteOnlyCell
+# openpyxl versions < 2.5.0b1
+try:
+    from openpyxl.cell import WriteOnlyCell
+except ImportError:
+    from openpyxl.writer.dump_worksheet import WriteOnlyCell
 from . import ColumnHeaders
 
 
