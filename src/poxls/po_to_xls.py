@@ -3,7 +3,7 @@ import click
 import polib
 import openpyxl
 from openpyxl.styles import Font
-from openpyxl.writer.dump_worksheet import WriteOnlyCell
+from openpyxl.cell import WriteOnlyCell
 from . import ColumnHeaders
 
 
