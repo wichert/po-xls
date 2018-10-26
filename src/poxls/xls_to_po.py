@@ -64,6 +64,7 @@ def main(locale, input_file, output_file):
         msgctxt_column = headers.get(ColumnHeaders.msgctxt)
         msgid_column = headers.get(ColumnHeaders.msgid)
         tcomment_column = headers.get(ColumnHeaders.tcomment)
+        comment_column = headers.get(ColumnHeaders.comment)
         msgstr_column = headers.get(locale)
         if msgid_column is None:
             click.echo(u'Could not find a "%s" column' % ColumnHeaders.msgid,
@@ -87,6 +88,8 @@ def main(locale, input_file, output_file):
                         entry.msgctxt = row[msgctxt_column]
                     if tcomment_column:
                         entry.tcomment = row[tcomment_column]
+                    if comment_column:
+                        entry.comment = row[comment_column]
                     catalog.append(entry)
                 except IndexError:
                     click.echo('Row %s is too short' % row, err=True)
