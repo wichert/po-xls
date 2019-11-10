@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.5.0 - November 10, 2019
+-------------------------
+
+- Support both OpenPyxl < 2.5.0b1 and newer versions. Patch from Felix Slager.
+- Fix handling of the comment column in xls-to-po. Patch from Jens Mertelmeyer.
+- Correct typos in README. Patch from Robin Meier.
+
 1.4.2 - May 11, 2017
 -------------------------
 
