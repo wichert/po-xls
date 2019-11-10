@@ -7,9 +7,8 @@ install_requires=[
         'click',
         'polib',
         'openpyxl',
+        'argparse;python_version<"3.0"',
         ]
-if sys.version_info<(2,7):
-    install_requires.append('argparse')
 
 setup(name='poxls',
       version=version,
