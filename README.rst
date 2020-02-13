@@ -9,7 +9,7 @@ it is possible to include multiple languages in a single spreadsheet, which can 
 helpful when translating to multiple similar languages at the same time (for
 example simplified and traditional chinese).
 
-The format for spreadsheets is simple: 
+The format for spreadsheets is simple:
 
 * If any message use a message context the first column will specify the
   context.  If message contexts are not used this column will be skipped.
@@ -66,3 +66,9 @@ Translations can be converted back from a spreadsheet into a PO-file using the
 This will take the Dutch (`nl`) translations from `texts.xls`, and (re)create a
 ``nl.po`` file using those. You can merge those into an existing po-file using
 a tool like gettext's ``msgmerge``.
+
+You can ignore specific sheets by using ``-i`` or ``--ignore``. For example:
+
+    xls-to-po -i 0,2 nl texts.xlsx nl.po
+
+Will ignore sheets the first and the third sheet of the book.

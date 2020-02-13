@@ -34,12 +34,15 @@ def po_timestamp(filename):
 
 
 @click.command()
+@click.option('-i', '--ignore', multiple=False,
+        type=str,
+        help='Ignore sheets with specific IDs. Multiple values separated by comma are allowed.')
 @click.argument('locale', required=True)
 @click.argument('input_file',
         type=click.Path(exists=True, readable=True),
         required=True)
 @click.argument('output_file', type=click.File('w', encoding='utf-8'), required=True)
-def main(locale, input_file, output_file):
+def main(ignore, locale, input_file, output_file):
     """
     Convert a XLS(X) file to a .PO file
     """
@@ -55,6 +58,11 @@ def main(locale, input_file, output_file):
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
     for sheet in book.worksheets:
+        sheet_id = book.index(sheet)
+        if ignore and str(sheet_id) in ignore.replace(' ', '').split(','):
+            click.echo('Ignoring sheet with id %d: (%s)' % (sheet_id, sheet.title))
+            continue
+
         if sheet.max_row < 2:
             continue
         click.echo('Processing sheet %s' % sheet.title)
