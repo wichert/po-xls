@@ -69,6 +69,6 @@ a tool like gettext's ``msgmerge``.
 
 You can ignore specific sheets by using ``-i`` or ``--ignore``. For example:
 
-    xls-to-po -i 0,2 nl texts.xlsx nl.po
+    xls-to-po -i 'Read Me First' -i Appendix  nl texts.xlsx nl.po
 
-Will ignore sheets the first and the third sheet of the book.
+Will ignore sheets ``Read Me First`` and ``Appendix`` of the book.

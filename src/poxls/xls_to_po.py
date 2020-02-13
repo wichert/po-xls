@@ -34,9 +34,9 @@ def po_timestamp(filename):
 
 
 @click.command()
-@click.option('-i', '--ignore', multiple=False,
+@click.option('-i', '--ignore', multiple=True,
         type=str,
-        help='Ignore sheets with specific IDs. Multiple values separated by comma are allowed.')
+        help='Ignore sheets with specific names.')
 @click.argument('locale', required=True)
 @click.argument('input_file',
         type=click.Path(exists=True, readable=True),
@@ -58,9 +58,8 @@ def main(ignore, locale, input_file, output_file):
     catalog.metadata['Generated-By'] = 'xls-to-po 1.0'
 
     for sheet in book.worksheets:
-        sheet_id = book.index(sheet)
-        if ignore and str(sheet_id) in ignore.replace(' ', '').split(','):
-            click.echo('Ignoring sheet with id %d: (%s)' % (sheet_id, sheet.title))
+        if ignore and str(sheet.title) in ignore:
+            click.echo('Ignoring sheet: %s' % sheet.title)
             continue
 
         if sheet.max_row < 2:
