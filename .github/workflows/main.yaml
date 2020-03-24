@@ -1,0 +1,32 @@
+name: Build and publish Python 🐍 distributions
+
+on: push
+
+jobs:
+  build-n-publish:
+    name: Build and publish Python 🐍 distributions
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.7 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Insert version number
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        run: |
+          version=$(echo $GITHUB_REF | cut -d/ -f3)
+          sed -ie "/^version/s/=.*/= \"$version\"/" setup.py
+
+      - name: Build a binary wheel and a source tarball
+        run: python setup.py sdist bdist_wheel
+
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
