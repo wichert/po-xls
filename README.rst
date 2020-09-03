@@ -1,13 +1,15 @@
 Translating via spreadsheets
 ============================
 
-Not all translators are comfortable with using PO-editors such as `Poedit
-<http://www.poedit.net/>`_ or translation tools like `Transifex
-<http://trac.transifex.org/>`_. For them this package provides simple tools to
-convert PO-files to `xlsx`-files and back again. This also has another benefit:
-it is possible to include multiple languages in a single spreadsheet, which can be
-helpful when translating to multiple similar languages at the same time (for
-example simplified and traditional chinese).
+Not all translators are comfortable with using PO-editors such as
+`Poedit <http://www.poedit.net/>`_ or translation tools like `WebLate
+<https://weblate.org/en-gb/>`_ or `Transifex
+<https://www.transifex.com/>`_. For them this package provides simple
+tools to convert PO-files to `xlsx`-files and back again. This also
+has another benefit: it is possible to include multiple languages in
+a single spreadsheet, which can be helpful when translating to
+multiple similar languages at the same time (for example simplified
+and traditional chinese).
 
 The format for spreadsheets is simple:
 
