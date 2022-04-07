@@ -47,7 +47,7 @@ key in the file metadata, falling back to the filename if no language informatio
 is specified. You can override this by explicitly specifying the locale on the
 commandline. For example::
 
-    po-to-xs nl:locales/nl/LC_MESSAGES/mydomain.po
+    po-to-xls nl:locales/nl/LC_MESSAGES/mydomain.po
 
 This will read ``locales/nl/LC_MESSAGES/mydomain.po`` and treat it as Dutch
 (``nl`` locale).
