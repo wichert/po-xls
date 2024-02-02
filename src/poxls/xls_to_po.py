@@ -91,6 +91,14 @@ def main(ignore, locale, input_file, output_file):
                     entry = polib.POEntry(
                             msgid=row[msgid_column],
                             msgstr=row[msgstr_column] or '')
+                    if occurences_column is not None and row[occurences_column]:
+                        occurences = row[occurences_column].split(", ")
+                        for o in occurences:
+                            fpath_and_lineno = o.split(':')
+                            fpath = fpath_and_lineno[0]
+                            lineno = fpath_and_lineno[1]
+                            occurence = [fpath, lineno]
+                            entry.occurrences.append(occurence)
                     if msgctxt_column is not None and row[msgctxt_column]:
                         entry.msgctxt = row[msgctxt_column]
                     if tcomment_column:
